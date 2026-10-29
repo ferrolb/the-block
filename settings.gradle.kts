@@ -24,3 +24,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "The Block"
 include(":app")
+include(":vehicle:data")
+include(":vehicle:domain")
+include(":vehicle:ui")
