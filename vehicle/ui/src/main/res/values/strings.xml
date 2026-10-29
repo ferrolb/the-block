@@ -1,0 +1,33 @@
+<resources>
+    <string name="inventory_brand">THE BLOCK</string>
+    <string name="inventory_title">Vehicle inventory</string>
+    <string name="inventory_subtitle">Find your next vehicle</string>
+    <string name="inventory_search_label">Search vehicles</string>
+    <string name="inventory_search_hint">Make, model, year, VIN or lot</string>
+    <string name="inventory_clear_search">Clear search</string>
+    <string name="inventory_loading">Loading vehicles…</string>
+    <string name="inventory_error_title">Unable to load vehicles</string>
+    <string name="inventory_invalid_data">The inventory could not be read. Please try again.</string>
+    <string name="inventory_unavailable">The inventory is unavailable. Please try again.</string>
+    <string name="inventory_retry">Try again</string>
+    <string name="inventory_no_matches">No matching vehicles</string>
+    <string name="inventory_search_empty_message">Try a different make, model, year, VIN or lot number.</string>
+    <string name="inventory_empty_title">No vehicles available</string>
+    <string name="inventory_empty_message">There are no vehicles in the inventory right now.</string>
+    <string name="inventory_vehicle_title">%1$d %2$s %3$s</string>
+    <string name="inventory_vehicle_photo">%1$d %2$s %3$s vehicle photo</string>
+    <string name="inventory_lot">Lot %1$s</string>
+    <string name="inventory_mileage">%1$s km</string>
+    <string name="inventory_location">%1$s, %2$s</string>
+    <string name="inventory_starting_bid">Starting bid</string>
+    <string name="inventory_current_bid">Current bid</string>
+    <string name="inventory_price_cad">%1$s CAD</string>
+    <plurals name="inventory_count">
+        <item quantity="one">%d vehicle</item>
+        <item quantity="other">%d vehicles</item>
+    </plurals>
+    <plurals name="inventory_bid_count">
+        <item quantity="one">%d bid</item>
+        <item quantity="other">%d bids</item>
+    </plurals>
+</resources>

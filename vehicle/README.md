@@ -4,8 +4,8 @@ The dependency direction is `vehicle:data -> vehicle:domain`; UI consumers depen
 the domain contract. Hilt provides one application-scoped repository through
 `VehicleModule` in the app module, using Dagger/Hilt with KSP code generation.
 `TheBlockApplication` is annotated with `@HiltAndroidApp` and `MainActivity` with
-`@AndroidEntryPoint`. Hilt also provides the domain use cases, ready for injection
-into future ViewModels.
+`@AndroidEntryPoint`. Hilt provides the domain use cases to `InventoryViewModel`
+in `vehicle:ui`; the inventory screen is the app's launch screen.
 The data and domain modules remain independent of the DI framework.
 
 ## Demo data flow
@@ -40,6 +40,24 @@ case. Changing the search query creates a new observation flow (for example,
 using `flatMapLatest` on query state). Inventory and detail observers receive bid
 updates from the same repository. Domain use cases require neither Android nor DI.
 
+## Inventory UI
+
+The Material 3 inventory screen displays vehicle cards with photos, trim, mileage,
+location, lot number, current/starting bid, and bid count. Search filters locally
+as you type; clear search restores the full list. Loading, retryable errors,
+empty inventory, and no search matches have distinct states.
+
+`InventoryViewModel` uses the domain load/search use cases, retains the query in
+`SavedStateHandle`, and exposes a StateFlow collected with lifecycle awareness.
+Cards have stable vehicle ID keys and the lazy list restores its scroll state
+across activity recreation. The screen applies system-bar and IME insets through
+its Scaffold; the search keyboard action dismisses focus.
+
+Coil loads the supplied placeholder URLs, including SVG responses. Images have
+a local fallback, and failed image requests do not block inventory browsing.
+The app needs Internet access for images; the inventory itself remains bundled.
+Cards are informational in this phase; detail navigation and bid entry come next.
+
 ## Prototype assumptions
 
 - Prices are CAD; fixture whole dollars become integer cents in the domain.
@@ -52,11 +70,13 @@ updates from the same repository. Domain use cases require neither Android nor D
   Failed loads can be retried. Cancellation is propagated and restores prior state.
 - Auction timestamps retain their original local ISO text. No timezone or auction
   end time is invented; scheduling does not restrict demo bidding.
-- Image URLs are preserved. Image loading will be added with the UI.
+- Image URLs are preserved and displayed as supplied; they are placeholder images,
+  not photographs of the vehicles.
 
 ## Verification
 
-Run `./gradlew :vehicle:domain:test :vehicle:data:test :app:assembleDebug`.
+Run `./gradlew :vehicle:domain:test :vehicle:data:test :vehicle:ui:testDebugUnitTest :app:assembleDebug`.
+With an emulator or device connected, run `./gradlew :app:connectedDebugAndroidTest`.
 
 Tests cover the real 200-vehicle resource through OkHttp/Retrofit/mapping, nullable
 prices, failed loads and retry, invalid data, cancellation, bid validation,
@@ -64,3 +84,6 @@ observable bid updates, and concurrent submissions. Domain tests cover search
 fields, multi-term matching, state propagation, detail lookup, and bid boundaries.
 An integration test exercises load, search, detail observation, and bid submission
 together against the demo repository without any Android or UI dependencies.
+ViewModel tests cover search, restored queries, failed loads/retry, overlapping
+loads, and observable inventory updates. Device tests cover loading/error/empty
+screens and browsing/searching the bundled inventory across activity recreation.
