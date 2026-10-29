@@ -22,7 +22,9 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "The Block"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+rootProject.name = "the-block"
 include(":app")
 include(":vehicle:data")
 include(":vehicle:domain")

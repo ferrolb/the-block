@@ -24,7 +24,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":vehicle:domain"))
+    implementation(projects.vehicle.domain)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
