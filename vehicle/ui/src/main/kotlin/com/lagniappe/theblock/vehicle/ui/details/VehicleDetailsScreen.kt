@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lagniappe.theblock.vehicle.domain.model.BidRules
 import com.lagniappe.theblock.vehicle.domain.usecase.VehicleDetails
 import com.lagniappe.theblock.vehicle.ui.R
 
@@ -44,11 +45,25 @@ fun VehicleDetailsRoute(
     viewModel: VehicleDetailsViewModel = hiltViewModel(),
 ) {
     val details by viewModel.details.collectAsStateWithLifecycle()
+    val bidState by viewModel.bidState.collectAsStateWithLifecycle()
     VehicleDetailsScreen(
         vehicleId = viewModel.vehicleId,
         details = details,
         onBack = onBack,
         onRetry = viewModel::retry,
+        onPlaceBid = viewModel::startBid,
+    )
+    val vehicle = (details as? VehicleDetails.Ready)?.vehicle
+    VehicleBidDialog(
+        state = bidState,
+        vehicleTitle = vehicle?.let {
+            stringResource(R.string.inventory_vehicle_title, it.year, it.make, it.model)
+        } ?: stringResource(R.string.vehicle_details_title),
+        onAmountChanged = viewModel::changeBidAmount,
+        onReview = viewModel::reviewBid,
+        onConfirm = viewModel::confirmBid,
+        onEdit = viewModel::editBid,
+        onDismiss = viewModel::dismissBid,
     )
 }
 
@@ -60,10 +75,16 @@ fun VehicleDetailsScreen(
     onBack: () -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
+    onPlaceBid: () -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier.testTag("vehicle-details:$vehicleId"),
         contentWindowInsets = WindowInsets.safeDrawing,
+        bottomBar = {
+            if (details is VehicleDetails.Ready) {
+                VehicleBidBar(BidRules.minimumBid(details.vehicle.auction), onPlaceBid)
+            }
+        },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.vehicle_details_title)) },

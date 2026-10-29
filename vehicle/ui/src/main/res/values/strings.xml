@@ -1,4 +1,23 @@
 <resources>
+    <string name="bid_place">Place bid</string>
+    <string name="bid_amount">Amount (CAD)</string>
+    <string name="bid_minimum">Minimum next bid: %1$s</string>
+    <string name="bid_amount_hint">Use up to 2 decimal places (%1$s), without currency symbols or thousands separators.</string>
+    <string name="bid_invalid_amount">Enter a positive amount with up to 2 decimal places, without currency symbols or thousands separators.</string>
+    <string name="bid_too_low">The minimum bid is now %1$s. Enter this amount or higher.</string>
+    <string name="bid_unavailable">Bidding is unavailable for this vehicle.</string>
+    <string name="bid_failed">Your bid could not be placed. Please try again.</string>
+    <string name="bid_review">Review bid</string>
+    <string name="bid_confirm_title">Confirm your bid</string>
+    <string name="bid_confirm_amount">Place a bid of %1$s on this vehicle?</string>
+    <string name="bid_confirm">Confirm bid</string>
+    <string name="bid_edit">Edit amount</string>
+    <string name="bid_cancel">Cancel</string>
+    <string name="bid_submitting">Placing bid…</string>
+    <string name="bid_success">Bid placed</string>
+    <string name="bid_success_amount">Your bid of %1$s was accepted. The price and bid count have been updated.</string>
+    <string name="bid_done">Done</string>
+    <string name="bid_demo_note">Demo bidding only. Bids reset when the app process restarts. An accepted bid does not mean you have purchased the vehicle.</string>
     <string name="vehicle_details_title">Vehicle details</string>
     <string name="vehicle_details_loading">Loading vehicle…</string>
     <string name="vehicle_details_error">Unable to load vehicle</string>

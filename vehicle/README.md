@@ -77,7 +77,33 @@ activity recreation. No live countdown or invented auction end time is shown.
 the Hilt boundary, observes the current vehicle through `ObserveVehicleUseCase`,
 and loads inventory if needed after process recreation. The screen handles
 loading, retryable failures, and unknown IDs independently.
-Bid entry will be implemented in the next phase.
+## Bidding
+
+A persistent "Place bid" action on details displays the minimum next bid.
+The flow is amount entry, review, explicit confirmation, and an accepted-bid
+message. Editing or cancelling the review never submits a bid.
+
+Amounts are CAD and parsed into exact integer cents. The entry accepts the local
+decimal separator or a decimal point, with up to two decimal places; grouping,
+currency symbols, nonpositive amounts, extra precision, and overflow are rejected.
+The form is initially populated with the current minimum.
+
+The ViewModel calls `PlaceBidUseCase` only after confirmation. Pending submissions
+disable confirmation and dismissal to prevent duplicate actions. The repository
+rechecks the minimum atomically; a competing bid returns the buyer to amount
+entry with the new minimum, requiring another review. Unavailable vehicles and
+failed submissions show recoverable errors.
+
+Accepted bids update the shared repository, so both details and inventory show
+the new price and bid count without a reload. Draft/review state survives activity
+recreation through the ViewModel but is not restored after process death; a
+restored screen never automatically submits a bid. This is a local demo, bids
+reset on process restart, and acceptance does not mean a purchase.
+
+Unit tests cover amount parsing, validation, cancellation, confirmation, duplicate
+submission prevention, stale-price rejection, and unavailable vehicles. The
+device bidding test verifies invalid/low amounts, a confirmed decimal bid updating
+details and inventory, and cancellation leaving the bid count unchanged.
 
 ## Type-safe navigation
 
