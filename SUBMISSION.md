@@ -1,45 +1,33 @@
-# Submission Template
+# The Block — submission summary
 
-Use this as a starting point for your repo's README in your fork of this challenge.
+An Android buyer-side auction prototype built with Kotlin and Jetpack Compose.
 
-When you're finished, send the link to your repo to your contact at **OPENLANE**.
+- Browse/search the supplied 200-vehicle inventory.
+- Open complete details with photos, specs, condition, damage, dealer, and auction data.
+- Enter, validate, review, confirm, or cancel a demo bid.
+- See accepted bid prices and counts update on details and inventory.
 
-Delete what you don't need, add what you want.
+## Reviewer entry points
 
----
+- [README.md](README.md): prerequisites, setup, build/run/test commands, architecture,
+  assumptions, tradeoffs, AI assistance, and future improvements.
+- [docs/VERIFICATION.md](docs/VERIFICATION.md): clean-clone build/install evidence,
+  45 JVM tests, 13 device tests, additional device checks, and coverage limits.
+- [DEMO.md](DEMO.md): five-minute demo, reset steps, and interview/code walkthrough.
+- [vehicle/README.md](vehicle/README.md): feature implementation notes.
+- [CHALLENGE.md](CHALLENGE.md): the original OPENLANE challenge brief.
+- [WALKTHROUGH.md](WALKTHROUGH.md): the supplied interview format.
 
-# [Your Project Name]
+## Scope
 
-## How to Run
+This is a native Android prototype with bundled inventory and simulated,
+in-memory bidding. There is no backend service, database, authentication,
+payment flow, or browser client. Bids reset after process restart. Real bidding
+would require server-authoritative validation and durable, idempotent updates.
 
-Step-by-step instructions to get the project running locally.
+AI assistance was used throughout the staged implementation and verification.
+Exact hands-on time is not recorded in the repository; no four-hour completion
+claim is made.
 
-## Time Spent
-
-Roughly how much time you spent and how you approached the time box.
-
-## Assumptions and Scope
-
-What you intentionally included, skipped, or simplified.
-
-## Stack
-
-- **Frontend:**
-- **Backend:**
-- **Database:**
-
-## What I Built
-
-A brief description of your project and your approach.
-
-## Notable Decisions
-
-What choices did you make and why? What tradeoffs did you consider?
-
-## Testing
-
-What you tested and how.
-
-## What I'd Do With More Time
-
-What would you add, improve, or change?
+The repository is prepared for review; publishing a fork or sending its URL is a
+separate submission action.
