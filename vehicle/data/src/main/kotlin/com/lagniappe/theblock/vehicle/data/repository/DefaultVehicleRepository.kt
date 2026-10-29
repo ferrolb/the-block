@@ -2,6 +2,7 @@ package com.lagniappe.theblock.vehicle.data.repository
 
 import com.lagniappe.theblock.vehicle.data.mapper.toDomain
 import com.lagniappe.theblock.vehicle.data.remote.VehicleApi
+import com.lagniappe.theblock.vehicle.domain.model.BidRules
 import com.lagniappe.theblock.vehicle.domain.model.Money
 import com.lagniappe.theblock.vehicle.domain.repository.BidResult
 import com.lagniappe.theblock.vehicle.domain.repository.InventoryFailure
@@ -64,15 +65,8 @@ internal class DefaultVehicleRepository(
         val vehicle = ready.vehicles.find { it.id == vehicleId }
             ?: return@withLock BidResult.VehicleNotFound
         val auction = vehicle.auction
-        val currentCents = auction.currentBid?.cents
-        if (auction.bidCount == Int.MAX_VALUE ||
-            (currentCents != null && currentCents > Long.MAX_VALUE - BID_INCREMENT_CENTS)
-        ) {
-            return@withLock BidResult.BidLimitReached
-        }
-        val minimum = Money(
-            maxOf(auction.startingBid.cents, currentCents?.plus(BID_INCREMENT_CENTS) ?: 0L),
-        )
+        val minimum = BidRules.minimumBid(auction)
+            ?: return@withLock BidResult.BidLimitReached
         if (amount < minimum) return@withLock BidResult.AmountTooLow(minimum)
 
         val updated = vehicle.copy(
@@ -82,10 +76,5 @@ internal class DefaultVehicleRepository(
             ready.vehicles.map { if (it.id == vehicleId) updated else it },
         )
         BidResult.Accepted(updated)
-    }
-
-    private companion object {
-        // Prototype assumption: subsequent bids increase by at least CAD $100.
-        const val BID_INCREMENT_CENTS = 10_000L
     }
 }
