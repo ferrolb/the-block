@@ -1,9 +1,12 @@
 # Vehicle feature data layer
 
 The dependency direction is `vehicle:data -> vehicle:domain`; UI consumers depend on
-the domain contract. The app owns one lazily created repository in
-`TheBlockApplication`. A future ViewModel should call `loadInventory()` from its
-coroutine scope and collect `inventory`.
+the domain contract. Hilt provides one application-scoped repository through
+`VehicleModule` in the app module, using Dagger/Hilt with KSP code generation.
+`TheBlockApplication` is annotated with `@HiltAndroidApp` and `MainActivity` with
+`@AndroidEntryPoint`. Future Hilt ViewModels can inject `VehicleRepository`, call
+`loadInventory()` from their coroutine scope, and collect `inventory`.
+The data and domain modules remain independent of the DI framework.
 
 ## Demo data flow
 

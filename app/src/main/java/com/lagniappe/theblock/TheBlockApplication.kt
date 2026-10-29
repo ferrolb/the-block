@@ -1,12 +1,12 @@
 package com.lagniappe.theblock
 
 import android.app.Application
-import com.lagniappe.theblock.vehicle.data.DemoVehicleRepositoryFactory
 import com.lagniappe.theblock.vehicle.domain.repository.VehicleRepository
+import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
+@HiltAndroidApp
 class TheBlockApplication : Application() {
-    // Application-owned so all future screens observe the same inventory and demo bids.
-    val vehicleRepository: VehicleRepository by lazy {
-        DemoVehicleRepositoryFactory.create()
-    }
+    @Inject
+    lateinit var vehicleRepository: VehicleRepository
 }
