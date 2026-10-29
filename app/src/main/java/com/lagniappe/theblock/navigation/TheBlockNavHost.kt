@@ -6,8 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
-import com.lagniappe.theblock.vehicle.ui.details.VehicleDetailsPlaceholder
+import com.lagniappe.theblock.vehicle.ui.details.VehicleDetailsRoute
 import com.lagniappe.theblock.vehicle.ui.inventory.InventoryRoute
 import com.lagniappe.theblock.vehicle.ui.navigation.InventoryDestination
 import com.lagniappe.theblock.vehicle.ui.navigation.VehicleDetailsDestination
@@ -26,10 +25,8 @@ fun TheBlockNavHost(navController: NavHostController = rememberNavController()) 
                 },
             )
         }
-        composable<VehicleDetailsDestination> { entry ->
-            val destination = entry.toRoute<VehicleDetailsDestination>()
-            VehicleDetailsPlaceholder(
-                vehicleId = destination.vehicleId,
+        composable<VehicleDetailsDestination> {
+            VehicleDetailsRoute(
                 onBack = { navController.popBackStack() },
             )
         }

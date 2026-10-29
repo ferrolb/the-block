@@ -56,20 +56,40 @@ its Scaffold; the search keyboard action dismisses focus.
 Coil loads the supplied placeholder URLs, including SVG responses. Images have
 a local fallback, and failed image requests do not block inventory browsing.
 The app needs Internet access for images; the inventory itself remains bundled.
+
+## Vehicle details
+
+Selecting a card opens complete vehicle details, including:
+
+- Swipeable photos with previous/next controls and a photo counter.
+- Year, make, model, trim, lot, and selectable VIN.
+- Engine, transmission, drivetrain, fuel type, mileage, body style, and colours.
+- Condition grade, report, title status, and all damage notes.
+- Selling dealership and location.
+- Starting/current bid, bid count, reserve price/status, buy-now price, and
+  the supplied local auction start time.
+
+Empty photos, no reported damage notes, no bids, and missing prices have explicit
+messages. Image failures use a local fallback. Photo and scroll position survive
+activity recreation. No live countdown or invented auction end time is shown.
+
+`VehicleDetailsViewModel` decodes the typed route from `SavedStateHandle` at
+the Hilt boundary, observes the current vehicle through `ObserveVehicleUseCase`,
+and loads inventory if needed after process recreation. The screen handles
+loading, retryable failures, and unknown IDs independently.
+Bid entry will be implemented in the next phase.
+
 ## Type-safe navigation
 
 The app's `TheBlockNavHost` uses Navigation Compose with Kotlin-serializable
 `InventoryDestination` and `VehicleDetailsDestination(vehicleId)` routes defined
-in `vehicle:ui`. Card clicks navigate by ID; the graph reconstructs arguments with
-`toRoute<VehicleDetailsDestination>()`. Screens receive callbacks rather than
-a NavController. Navigation scopes the inventory ViewModel to its back-stack entry,
-preserving search when returning from details.
+in `vehicle:ui`. Card clicks navigate by ID; the details ViewModel reconstructs
+arguments with `SavedStateHandle.toRoute<VehicleDetailsDestination>()`. Screens
+receive callbacks rather than a NavController. Navigation scopes each ViewModel
+to its back-stack entry, preserving search when returning from details.
 
-The details destination currently contains a placeholder and a back button.
-System back also returns to inventory. The full details UI will replace this
-placeholder next; no vehicle snapshot is passed through navigation arguments.
-A future details ViewModel can use `SavedStateHandle.toRoute` to recover the ID
-and observe the current vehicle through the domain use case.
+The details destination has toolbar and system back support. No vehicle snapshot
+is passed through navigation arguments; details observe the shared repository.
 
 The device navigation test verifies the selected ID, destination restoration after
 activity recreation, and retained inventory search after toolbar and system back.
@@ -103,3 +123,6 @@ together against the demo repository without any Android or UI dependencies.
 ViewModel tests cover search, restored queries, failed loads/retry, overlapping
 loads, and observable inventory updates. Device tests cover loading/error/empty
 screens and browsing/searching the bundled inventory across activity recreation.
+Details tests also cover selected IDs, fresh loading, retry, shared bid updates,
+photo restoration, specs, condition, damage notes, dealership, auction fields,
+missing prices, and not-found states.

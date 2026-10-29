@@ -28,6 +28,7 @@ android {
 
 dependencies {
     implementation(projects.vehicle.domain)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
