@@ -56,7 +56,23 @@ its Scaffold; the search keyboard action dismisses focus.
 Coil loads the supplied placeholder URLs, including SVG responses. Images have
 a local fallback, and failed image requests do not block inventory browsing.
 The app needs Internet access for images; the inventory itself remains bundled.
-Cards are informational in this phase; detail navigation and bid entry come next.
+## Type-safe navigation
+
+The app's `TheBlockNavHost` uses Navigation Compose with Kotlin-serializable
+`InventoryDestination` and `VehicleDetailsDestination(vehicleId)` routes defined
+in `vehicle:ui`. Card clicks navigate by ID; the graph reconstructs arguments with
+`toRoute<VehicleDetailsDestination>()`. Screens receive callbacks rather than
+a NavController. Navigation scopes the inventory ViewModel to its back-stack entry,
+preserving search when returning from details.
+
+The details destination currently contains a placeholder and a back button.
+System back also returns to inventory. The full details UI will replace this
+placeholder next; no vehicle snapshot is passed through navigation arguments.
+A future details ViewModel can use `SavedStateHandle.toRoute` to recover the ID
+and observe the current vehicle through the domain use case.
+
+The device navigation test verifies the selected ID, destination restoration after
+activity recreation, and retained inventory search after toolbar and system back.
 
 ## Prototype assumptions
 

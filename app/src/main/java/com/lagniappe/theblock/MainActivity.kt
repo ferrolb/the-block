@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.lagniappe.theblock.ui.theme.TheBlockTheme
-import com.lagniappe.theblock.vehicle.ui.inventory.InventoryRoute
+import com.lagniappe.theblock.navigation.TheBlockNavHost
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TheBlockTheme {
-                InventoryRoute()
+                TheBlockNavHost()
             }
         }
     }

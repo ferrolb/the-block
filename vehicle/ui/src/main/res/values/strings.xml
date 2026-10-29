@@ -1,4 +1,7 @@
 <resources>
+    <string name="vehicle_details_title">Vehicle details</string>
+    <string name="vehicle_details_placeholder">This vehicle’s details will be available here.</string>
+    <string name="vehicle_details_back">Back to inventory</string>
     <string name="inventory_brand">THE BLOCK</string>
     <string name="inventory_title">Vehicle inventory</string>
     <string name="inventory_subtitle">Find your next vehicle</string>

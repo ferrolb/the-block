@@ -47,12 +47,16 @@ import com.lagniappe.theblock.vehicle.domain.repository.InventoryFailure
 import com.lagniappe.theblock.vehicle.ui.R
 
 @Composable
-fun InventoryRoute(viewModel: InventoryViewModel = hiltViewModel()) {
+fun InventoryRoute(
+    onVehicleClick: (String) -> Unit,
+    viewModel: InventoryViewModel = hiltViewModel(),
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     InventoryScreen(
         state = state,
         onQueryChanged = viewModel::onQueryChanged,
         onRetry = viewModel::retry,
+        onVehicleClick = onVehicleClick,
     )
 }
 
@@ -62,6 +66,7 @@ fun InventoryScreen(
     onQueryChanged: (String) -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
+    onVehicleClick: (String) -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     Scaffold(
@@ -182,7 +187,7 @@ fun InventoryScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         items(content.vehicles, key = { it.id }) { vehicle ->
-                            VehicleCard(vehicle)
+                            VehicleCard(vehicle, onClick = { onVehicleClick(vehicle.id) })
                         }
                     }
                 }

@@ -31,7 +31,11 @@ import java.text.NumberFormat
 import java.util.Currency
 
 @Composable
-internal fun VehicleCard(vehicle: Vehicle, modifier: Modifier = Modifier) {
+internal fun VehicleCard(
+    vehicle: Vehicle,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val locale = LocalConfiguration.current.locales[0]
     val numberFormat = remember(locale) { NumberFormat.getIntegerInstance(locale) }
     val moneyFormat = remember(locale) {
@@ -44,7 +48,7 @@ internal fun VehicleCard(vehicle: Vehicle, modifier: Modifier = Modifier) {
     val price = vehicle.auction.currentBid ?: vehicle.auction.startingBid
     val placeholder = painterResource(R.drawable.ic_vehicle_placeholder)
 
-    Card(modifier = modifier.fillMaxWidth()) {
+    Card(onClick = onClick, modifier = modifier.fillMaxWidth()) {
         Box {
             AsyncImage(
                 model = vehicle.images.firstOrNull(),
