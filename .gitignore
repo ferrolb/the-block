@@ -21,3 +21,6 @@ node_modules/
 .idea/deviceManager.xml
 .idea/kotlinc.xml
 .idea/vcs.xml
+.idea/compiler.xml
+.idea/gradle.xml
+.idea/misc.xml
