@@ -29,7 +29,7 @@ import kotlin.random.Random
 internal class DefaultVehicleRepository(
     private val api: VehicleApi,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val simulationEnabled: Boolean = true,
+    private val simulationEnabled: Boolean = false,
     private val simulationScope: CoroutineScope = CoroutineScope(SupervisorJob() + ioDispatcher),
     private val simulatedBidCount: () -> Int = { Random.nextInt(0, 4) },
 ) : VehicleRepository {
