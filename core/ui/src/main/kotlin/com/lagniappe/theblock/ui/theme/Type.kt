@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.lagniappe.theblock.R
+import com.lagniappe.theblock.core.ui.R
 
 // Bundled for offline use; license: docs/licenses/Poppins-OFL.txt.
 private val Poppins = FontFamily(

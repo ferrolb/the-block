@@ -29,3 +29,5 @@ include(":app")
 include(":vehicle:data")
 include(":vehicle:domain")
 include(":vehicle:ui")
+
+include(":core:ui")

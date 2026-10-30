@@ -27,6 +27,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.ui)
     implementation(projects.vehicle.domain)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)

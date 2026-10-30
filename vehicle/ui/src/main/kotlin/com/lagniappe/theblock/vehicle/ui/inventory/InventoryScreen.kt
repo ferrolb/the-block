@@ -53,6 +53,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lagniappe.theblock.vehicle.domain.repository.InventoryFailure
 import com.lagniappe.theblock.vehicle.ui.R
+import com.lagniappe.theblock.ui.theme.TheBlockTheme
 
 @Composable
 fun InventoryRoute(
@@ -85,7 +86,7 @@ fun InventoryScreen(
                 modifier = Modifier.fillMaxWidth()
                     .background(
                         if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
-                            Color(0xFFE8F4FC)
+                            Color(0xFFD6EBFA)
                         } else {
                             MaterialTheme.colorScheme.surface
                         },
@@ -264,7 +265,7 @@ private fun InventoryMessage(
 @Preview(showBackground = true)
 @Composable
 private fun InventoryLoadingPreview() {
-    MaterialTheme {
+    TheBlockTheme {
         InventoryScreen(InventoryUiState(), onQueryChanged = {}, onRetry = {})
     }
 }
@@ -272,7 +273,7 @@ private fun InventoryLoadingPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun InventoryEmptySearchPreview() {
-    MaterialTheme {
+    TheBlockTheme {
         InventoryScreen(
             InventoryUiState("unknown", InventoryContent.Vehicles(emptyList())),
             onQueryChanged = {},

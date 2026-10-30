@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.ui)
     implementation(libs.coil)
     implementation(libs.coil.network.okhttp)
     implementation(libs.okhttp)
