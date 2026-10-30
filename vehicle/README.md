@@ -53,8 +53,11 @@ Cards have stable vehicle ID keys and the lazy list restores its scroll state
 across activity recreation. The screen applies system-bar and IME insets through
 its Scaffold; the search keyboard action dismisses focus.
 
-Coil loads the supplied placeholder URLs, including SVG responses. Images have
-a local fallback, and failed image requests do not block inventory browsing.
+Coil loads the supplied photo and placeholder URLs, including SVG responses.
+The application provides a shared image loader with an application-specific
+User-Agent because Wikimedia rejects the generic OkHttp User-Agent. This applies
+to inventory cards and the detail gallery. Images have a local fallback, and
+failed image requests do not block inventory browsing.
 The app needs Internet access for images; the inventory itself remains bundled.
 
 ## Vehicle details
