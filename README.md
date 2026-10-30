@@ -74,8 +74,10 @@ activity recreation.
 Inventory is the original [data/vehicles.json](data/vehicles.json), bundled by
 Gradle without a duplicate copy. A clearly named demo OkHttp interceptor serves
 the inventory response through Retrofit and Kotlin serialization. No inventory
-request reaches a server. Images use the supplied external placeholder URLs;
-inventory and bidding remain usable when those images cannot load.
+request reaches a server. Each listing starts with a representative Wikimedia
+model photo; the remaining gallery images are placeholders. See the
+[photo credits and licenses](docs/vehicle-image-credits.md). Inventory and bidding
+remain usable when external images cannot load.
 
 - All prices are CAD, represented as integer cents.
 - First bids must meet the starting price. Later bids must also exceed the

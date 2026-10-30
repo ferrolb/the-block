@@ -132,8 +132,10 @@ activity recreation, and retained inventory search after toolbar and system back
   Failed loads can be retried. Cancellation is propagated and restores prior state.
 - Auction timestamps retain their original local ISO text. No timezone or auction
   end time is invented; scheduling does not restrict demo bidding.
-- Image URLs are preserved and displayed as supplied; they are placeholder images,
-  not photographs of the vehicles.
+- Image URLs are preserved and displayed as supplied. Each listing starts with a
+  representative model photo; remaining images are placeholders. These are not
+  photos of the individual auction vehicles. See the
+  [photo credits and licenses](../docs/vehicle-image-credits.md).
 
 ## Verification
 
