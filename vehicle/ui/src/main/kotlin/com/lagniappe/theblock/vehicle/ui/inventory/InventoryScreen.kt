@@ -37,6 +37,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -81,7 +83,13 @@ fun InventoryScreen(
         topBar = {
             Box(
                 modifier = Modifier.fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(
+                        if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
+                            Color(0xFFE8F4FC)
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        },
+                    )
                     .windowInsetsPadding(
                         WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
                     ),
