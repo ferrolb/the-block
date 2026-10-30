@@ -61,7 +61,7 @@ internal fun VehicleCard(
                 error = placeholder,
                 fallback = placeholder,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth().aspectRatio(2.2f)
+                modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
                     .background(MaterialTheme.colorScheme.surfaceContainerHighest),
             )
             Surface(
@@ -89,15 +89,15 @@ internal fun VehicleCard(
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = vehicle.trim,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
                 text = stringResource(
-                    R.string.inventory_mileage, numberFormat.format(vehicle.specs.odometerKm),
+                    R.string.inventory_trim_mileage,
+                    vehicle.trim,
+                    stringResource(
+                        R.string.inventory_mileage, numberFormat.format(vehicle.specs.odometerKm),
+                    ),
                 ),
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 text = stringResource(

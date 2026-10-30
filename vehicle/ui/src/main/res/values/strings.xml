@@ -77,6 +77,7 @@
     <string name="inventory_vehicle_title">%1$d %2$s %3$s</string>
     <string name="inventory_vehicle_photo">%1$d %2$s %3$s vehicle photo</string>
     <string name="inventory_lot">Lot %1$s</string>
+    <string name="inventory_trim_mileage">%1$s · %2$s</string>
     <string name="inventory_mileage">%1$s km</string>
     <string name="inventory_location">%1$s, %2$s</string>
     <string name="inventory_starting_bid">Starting bid</string>

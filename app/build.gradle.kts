@@ -39,6 +39,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.coil)
+    implementation(libs.coil.network.okhttp)
+    implementation(libs.okhttp)
     implementation(libs.dagger)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

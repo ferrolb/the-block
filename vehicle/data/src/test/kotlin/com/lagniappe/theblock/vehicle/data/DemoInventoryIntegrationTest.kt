@@ -42,7 +42,7 @@ class DemoInventoryIntegrationTest {
         assertEquals(11, first.auction.bidCount)
         assertNull(first.auction.buyNowPrice)
         assertEquals(4, first.images.size)
-        assertTrue(first.images.first().startsWith("https://placehold.co/"))
+        assertTrue(vehicles.all { it.images.first().startsWith("https://thumb.wikimedia.org/") })
 
         assertTrue(vehicles.any { it.auction.currentBid == null && it.auction.bidCount == 0 })
         assertTrue(vehicles.any { it.auction.reservePrice == null })

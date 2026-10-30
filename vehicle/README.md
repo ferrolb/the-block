@@ -53,8 +53,11 @@ Cards have stable vehicle ID keys and the lazy list restores its scroll state
 across activity recreation. The screen applies system-bar and IME insets through
 its Scaffold; the search keyboard action dismisses focus.
 
-Coil loads the supplied placeholder URLs, including SVG responses. Images have
-a local fallback, and failed image requests do not block inventory browsing.
+Coil loads the supplied photo and placeholder URLs, including SVG responses.
+The application provides a shared image loader with an application-specific
+User-Agent because Wikimedia rejects the generic OkHttp User-Agent. This applies
+to inventory cards and the detail gallery. Images have a local fallback, and
+failed image requests do not block inventory browsing.
 The app needs Internet access for images; the inventory itself remains bundled.
 
 ## Vehicle details
@@ -132,8 +135,10 @@ activity recreation, and retained inventory search after toolbar and system back
   Failed loads can be retried. Cancellation is propagated and restores prior state.
 - Auction timestamps retain their original local ISO text. No timezone or auction
   end time is invented; scheduling does not restrict demo bidding.
-- Image URLs are preserved and displayed as supplied; they are placeholder images,
-  not photographs of the vehicles.
+- Image URLs are preserved and displayed as supplied. Each listing starts with a
+  representative model photo; remaining images are placeholders. These are not
+  photos of the individual auction vehicles. See the
+  [photo credits and licenses](../docs/vehicle-image-credits.md).
 
 ## Verification
 
