@@ -58,6 +58,7 @@
     <string name="vehicle_details_scheduled_start">Scheduled start (local time)</string>
     <string name="vehicle_details_auction_note">All prices are CAD. Auction dates are supplied demo schedules.</string>
     <string name="vehicle_details_back">Back to inventory</string>
+    <string name="inventory_openlane">OPENLANE</string>
     <string name="inventory_brand">THE BLOCK</string>
     <string name="inventory_title">Vehicle inventory</string>
     <string name="inventory_subtitle">Find your next vehicle</string>

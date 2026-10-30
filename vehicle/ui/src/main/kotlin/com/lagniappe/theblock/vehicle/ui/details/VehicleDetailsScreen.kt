@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -87,7 +88,17 @@ fun VehicleDetailsScreen(
         },
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.vehicle_details_title)) },
+                title = {
+                    Text(
+                        stringResource(R.string.vehicle_details_title),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.primary,
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
