@@ -34,11 +34,18 @@ keep synchronized. Inventory loading and mapping run off the main thread.
   minimum price; the repository invokes them inside its mutex against current
   state, preventing stale-price validation.
 
-Observation does not trigger loading. A ViewModel should collect an observation
-flow and launch `LoadInventoryUseCase` separately; a retry calls the same load use
-case. Changing the search query creates a new observation flow (for example,
-using `flatMapLatest` on query state). Inventory and detail observers receive bid
-updates from the same repository. Domain use cases require neither Android nor DI.
+Domain observation use cases do not trigger loading themselves. The ViewModels
+start the initial load lazily when their screen state is observed, using a cold
+`channelFlow` shared with `stateIn(WhileSubscribed(5_000))`. The load is a child
+of that observation flow so loading/error updates are collected concurrently and
+unfinished initial work is cancelled after five seconds without subscribers.
+Multiple collectors share the same work; changing search terms does not trigger
+another initial load. Explicit retry remains a guarded ViewModel action.
+
+After the sharing timeout, observation may start the load use case again; the
+repository's idempotent load preserves successful inventory and accepted bids.
+Inventory and detail observers receive updates from that same repository.
+Domain use cases require neither Android nor DI.
 
 ## Inventory UI
 
@@ -152,7 +159,9 @@ fields, multi-term matching, state propagation, detail lookup, and bid boundarie
 An integration test exercises load, search, detail observation, and bid submission
 together against the demo repository without any Android or UI dependencies.
 ViewModel tests cover search, restored queries, failed loads/retry, overlapping
-loads, and observable inventory updates. Device tests cover loading/error/empty
+loads, and observable inventory updates. Lazy-observation tests additionally
+cover construction without loading, multiple subscribers, short collection gaps,
+unsubscribed-load cancellation, and resubscription. Device tests cover loading/error/empty
 screens and browsing/searching the bundled inventory across activity recreation.
 Details tests also cover selected IDs, fresh loading, retry, shared bid updates,
 photo restoration, specs, condition, damage notes, dealership, auction fields,

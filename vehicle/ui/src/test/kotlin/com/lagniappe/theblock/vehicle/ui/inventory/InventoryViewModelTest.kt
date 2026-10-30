@@ -14,6 +14,7 @@ import com.lagniappe.theblock.vehicle.domain.repository.VehicleRepository
 import com.lagniappe.theblock.vehicle.domain.usecase.LoadInventoryUseCase
 import com.lagniappe.theblock.vehicle.domain.usecase.ObserveVehiclesUseCase
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -131,6 +134,53 @@ class InventoryViewModelTest {
         assertEquals(listOf(updated), (viewModel.uiState.value.content as InventoryContent.Vehicles).vehicles)
     }
 
+    @Test
+    fun `creation query changes and state reads do not load until observed`() = runTest {
+        val repository = FakeRepository()
+        val viewModel = viewModel(repository)
+        viewModel.onQueryChanged("Ford")
+        viewModel.uiState.value
+        advanceUntilIdle()
+        assertEquals(0, repository.loadCalls)
+
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+        advanceUntilIdle()
+        assertEquals(1, repository.loadCalls)
+        assertEquals(listOf(ford), (viewModel.uiState.value.content as InventoryContent.Vehicles).vehicles)
+    }
+
+    @Test
+    fun `short collection gaps retain the load and long gaps cancel it until reobserved`() = runTest {
+        val repository = FakeRepository()
+        repository.gate = CompletableDeferred()
+        val viewModel = viewModel(repository)
+        val first = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {}
+        }
+        runCurrent()
+        first.cancel()
+        advanceTimeBy(4_999)
+        runCurrent()
+        assertEquals(0, repository.cancelledLoads)
+
+        val second = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {}
+        }
+        runCurrent()
+        assertEquals(1, repository.loadCalls)
+        second.cancel()
+        advanceTimeBy(5_001)
+        runCurrent()
+        assertEquals(1, repository.cancelledLoads)
+
+        repository.gate = null
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+        advanceUntilIdle()
+        assertEquals(2, repository.loadCalls)
+        assertEquals(2, (viewModel.uiState.value.content as InventoryContent.Vehicles).vehicles.size)
+    }
+
     private fun viewModel(
         repository: VehicleRepository,
         handle: SavedStateHandle = SavedStateHandle(),
@@ -141,13 +191,19 @@ class InventoryViewModelTest {
         override val inventory = state.asStateFlow()
         var next: VehicleInventory = VehicleInventory.Ready(listOf(ford, mazda))
         var loadCalls = 0
+        var cancelledLoads = 0
         var gate: CompletableDeferred<Unit>? = null
 
         override suspend fun loadInventory() {
             loadCalls++
             state.value = VehicleInventory.Loading
-            gate?.await()
-            state.value = next
+            try {
+                gate?.await()
+                state.value = next
+            } catch (exception: CancellationException) {
+                cancelledLoads++
+                throw exception
+            }
         }
 
         override suspend fun placeBid(vehicleId: String, amount: Money): BidResult =

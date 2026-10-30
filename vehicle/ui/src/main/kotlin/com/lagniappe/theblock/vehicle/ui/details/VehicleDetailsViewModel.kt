@@ -18,6 +18,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -41,15 +42,17 @@ class VehicleDetailsViewModel internal constructor(
     private val mutableBidState = MutableStateFlow<BidUiState>(BidUiState.Closed)
     val bidState = mutableBidState.asStateFlow()
 
-    val details = observeVehicle(vehicleId).stateIn(
+    val details = channelFlow {
+        // Observe updates concurrently with the subscription-owned initial load.
+        if (loadJob?.isActive != true) {
+            loadJob = launch { loadInventory() }
+        }
+        observeVehicle(vehicleId).collect { send(it) }
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = VehicleDetails.Loading,
     )
-
-    init {
-        retry()
-    }
 
     fun startBid() {
         if (mutableBidState.value != BidUiState.Closed) return

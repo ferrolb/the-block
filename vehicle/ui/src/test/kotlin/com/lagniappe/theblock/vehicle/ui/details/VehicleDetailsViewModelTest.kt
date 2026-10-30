@@ -17,6 +17,7 @@ import com.lagniappe.theblock.vehicle.domain.usecase.ObserveVehicleUseCase
 import com.lagniappe.theblock.vehicle.domain.usecase.VehicleDetails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +25,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -177,6 +180,47 @@ class VehicleDetailsViewModelTest {
         assertEquals(1, repository.bidCalls)
     }
 
+    @Test
+    fun `details creation and bid state observation do not load inventory`() = runTest {
+        val repository = FakeRepository()
+        val viewModel = viewModel(repository)
+        viewModel.details.value
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.bidState.collect {} }
+        advanceUntilIdle()
+        assertEquals(0, repository.loads)
+
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.details.collect {} }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.details.collect {} }
+        advanceUntilIdle()
+        assertEquals(1, repository.loads)
+        assertEquals(VehicleDetails.Ready(vehicle), viewModel.details.value)
+    }
+
+    @Test
+    fun `unobserved details cancels its pending load after the timeout and can restart`() = runTest {
+        val repository = FakeRepository()
+        repository.loadGate = CompletableDeferred()
+        val viewModel = viewModel(repository)
+        val collector = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.details.collect {}
+        }
+        runCurrent()
+        assertEquals(1, repository.loads)
+        collector.cancel()
+        advanceTimeBy(4_999)
+        runCurrent()
+        assertEquals(0, repository.cancelledLoads)
+        advanceTimeBy(2)
+        runCurrent()
+        assertEquals(1, repository.cancelledLoads)
+
+        repository.loadGate = null
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.details.collect {} }
+        advanceUntilIdle()
+        assertEquals(2, repository.loads)
+        assertEquals(VehicleDetails.Ready(vehicle), viewModel.details.value)
+    }
+
     private fun viewModel(repository: VehicleRepository, id: String = "target") =
         VehicleDetailsViewModel(
             VehicleDetailsDestination(id),
@@ -189,6 +233,8 @@ class VehicleDetailsViewModelTest {
         val state = MutableStateFlow<VehicleInventory>(VehicleInventory.NotLoaded)
         override val inventory = state.asStateFlow()
         var loads = 0
+        var cancelledLoads = 0
+        var loadGate: CompletableDeferred<Unit>? = null
         var bidCalls = 0
         var bidGate: CompletableDeferred<Unit>? = null
         var bidResult: BidResult? = null
@@ -198,7 +244,14 @@ class VehicleDetailsViewModelTest {
 
         override suspend fun loadInventory() {
             loads++
-            state.value = next
+            state.value = VehicleInventory.Loading
+            try {
+                loadGate?.await()
+                state.value = next
+            } catch (exception: CancellationException) {
+                cancelledLoads++
+                throw exception
+            }
         }
 
         override suspend fun placeBid(vehicleId: String, amount: Money): BidResult {
