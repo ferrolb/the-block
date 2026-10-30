@@ -47,4 +47,5 @@ data class VehicleAuction(
     val buyNowPrice: Money?,
     val currentBid: Money?,
     val bidCount: Int,
+    val userBid: Money? = null,
 )

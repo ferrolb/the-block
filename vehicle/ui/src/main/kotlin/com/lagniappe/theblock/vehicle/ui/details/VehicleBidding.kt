@@ -27,6 +27,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import com.lagniappe.theblock.vehicle.domain.model.VehicleAuction
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -39,7 +43,7 @@ import com.lagniappe.theblock.vehicle.ui.format.rememberMoneyFormatter
 import java.text.DecimalFormatSymbols
 
 @Composable
-internal fun VehicleBidBar(minimum: Money?, onPlaceBid: () -> Unit) {
+internal fun VehicleBidBar(minimum: Money?, onPlaceBid: () -> Unit, auction: VehicleAuction) {
     val moneyFormat = rememberMoneyFormatter()
     Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = VehicleBiddingDefaults.BarElevation) {
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -52,6 +56,21 @@ internal fun VehicleBidBar(minimum: Money?, onPlaceBid: () -> Unit) {
                     ),
                 verticalArrangement = Arrangement.spacedBy(VehicleBiddingDefaults.BarSpacing),
             ) {
+                if (auction.currentBid != null && auction.userBid != null) {
+                    val leading = auction.currentBid == auction.userBid
+                    Surface(
+                        color = if (leading) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer,
+                        contentColor = if (leading) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
+                    ) {
+                        Text(
+                            stringResource(if (leading) R.string.bid_status_leading else R.string.bid_status_outbid),
+                            modifier = Modifier.padding(12.dp),
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                    }
+                }
                 Text(
                     if (minimum == null) stringResource(R.string.bid_unavailable) else
                         stringResource(R.string.bid_minimum, moneyFormat.format(minimum)),

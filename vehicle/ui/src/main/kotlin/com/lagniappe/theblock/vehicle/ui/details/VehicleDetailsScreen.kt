@@ -83,7 +83,7 @@ fun VehicleDetailsScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         bottomBar = {
             if (details is VehicleDetails.Ready) {
-                VehicleBidBar(BidRules.minimumBid(details.vehicle.auction), onPlaceBid)
+                VehicleBidBar(BidRules.minimumBid(details.vehicle.auction), onPlaceBid, details.vehicle.auction)
             }
         },
         topBar = {

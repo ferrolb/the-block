@@ -17,13 +17,82 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DefaultVehicleRepositoryTest {
+    @Test
+    fun `user leads immediately then competing bids update only that vehicle`() = runTest {
+        val repository = repository(simulationEnabled = true)
+        repository.loadInventory()
+        val vehicle = repository.vehicles().first { it.auction.currentBid == null }
+        val others = repository.vehicles().filter { it.id != vehicle.id }
+        repository.placeBid(vehicle.id, vehicle.auction.startingBid)
+        val leading = repository.vehicles().first { it.id == vehicle.id }.auction
+        assertEquals(leading.userBid, leading.currentBid)
+        runCurrent()
+        advanceTimeBy(2_999)
+        assertEquals(leading, repository.vehicles().first { it.id == vehicle.id }.auction)
+        advanceTimeBy(7_002)
+        runCurrent()
+        val outbid = repository.vehicles().first { it.id == vehicle.id }.auction
+        assertTrue(requireNotNull(outbid.currentBid) > requireNotNull(outbid.userBid))
+        assertTrue(outbid.bidCount > leading.bidCount)
+        assertEquals(others, repository.vehicles().filter { it.id != vehicle.id })
+    }
+
+    @Test
+    fun `new user bid invalidates previous simulation timer`() = runTest {
+        val repository = repository(simulationEnabled = true)
+        repository.loadInventory()
+        val vehicle = repository.vehicles().first { it.auction.currentBid == null }
+        repository.placeBid(vehicle.id, vehicle.auction.startingBid)
+        runCurrent()
+        advanceTimeBy(2_999)
+        val next = Money(vehicle.auction.startingBid.cents + 10_000)
+        repository.placeBid(vehicle.id, next)
+        runCurrent()
+        advanceTimeBy(2_999)
+        runCurrent()
+        val auction = repository.vehicles().first { it.id == vehicle.id }.auction
+        assertEquals(next, auction.currentBid)
+        assertEquals(next, auction.userBid)
+    }
+
+    @Test
+    fun `zero competing bids leaves the user in the lead`() = runTest {
+        val repository = repository(simulationEnabled = true, bidCount = { 0 })
+        repository.loadInventory()
+        val vehicle = repository.vehicles().first { it.auction.currentBid == null }
+        repository.placeBid(vehicle.id, vehicle.auction.startingBid)
+        val leading = repository.vehicles().first { it.id == vehicle.id }
+        runCurrent()
+        advanceTimeBy(30_001)
+        runCurrent()
+        assertEquals(leading, repository.vehicles().first { it.id == vehicle.id })
+    }
+
+    @Test
+    fun `multiple competing bids each advance the expected auction`() = runTest {
+        val repository = repository(simulationEnabled = true, bidCount = { 3 })
+        repository.loadInventory()
+        val vehicle = repository.vehicles().first { it.auction.currentBid == null }
+        repository.placeBid(vehicle.id, vehicle.auction.startingBid)
+        runCurrent()
+        advanceTimeBy(30_001)
+        runCurrent()
+        val auction = repository.vehicles().first { it.id == vehicle.id }.auction
+        assertEquals(4, auction.bidCount)
+        assertEquals(Money(vehicle.auction.startingBid.cents + 30_000), auction.currentBid)
+        assertEquals(vehicle.auction.startingBid, auction.userBid)
+    }
+
     @Test
     fun `first bid must meet starting price and later bids require CAD 100 increase`() = runTest {
         val repository = repository()
@@ -153,12 +222,17 @@ class DefaultVehicleRepositoryTest {
     }
 
     private fun TestScope.repository(
+        simulationEnabled: Boolean = false,
+        bidCount: () -> Int = { 1 },
         load: suspend () -> List<VehicleDto> = { fixture() },
     ): DefaultVehicleRepository = DefaultVehicleRepository(
         api = object : VehicleApi {
             override suspend fun getVehicles(): List<VehicleDto> = load()
         },
         ioDispatcher = StandardTestDispatcher(testScheduler),
+        simulationScope = backgroundScope,
+        simulationEnabled = simulationEnabled,
+        simulatedBidCount = bidCount,
     )
 
     private fun DefaultVehicleRepository.vehicles(): List<Vehicle> =

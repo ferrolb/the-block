@@ -90,4 +90,6 @@
         <item quantity="one">%d bid</item>
         <item quantity="other">%d bids</item>
     </plurals>
+    <string name="bid_status_leading">You’re the high bidder</string>
+    <string name="bid_status_outbid">You’ve been outbid. Place another bid to take the lead.</string>
 </resources>
