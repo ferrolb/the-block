@@ -1,10 +1,13 @@
 package com.lagniappe.theblock.vehicle.ui.details
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -22,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
@@ -37,20 +41,26 @@ import java.text.DecimalFormatSymbols
 @Composable
 internal fun VehicleBidBar(minimum: Money?, onPlaceBid: () -> Unit) {
     val moneyFormat = rememberMoneyFormatter()
-    Surface(tonalElevation = 3.dp) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(
-                if (minimum == null) stringResource(R.string.bid_unavailable) else
-                    stringResource(R.string.bid_minimum, moneyFormat.format(minimum)),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Button(onClick = onPlaceBid, enabled = minimum != null, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.bid_place))
+    Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 8.dp) {
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Column(
+                modifier = Modifier.widthIn(max = 720.dp).fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    if (minimum == null) stringResource(R.string.bid_unavailable) else
+                        stringResource(R.string.bid_minimum, moneyFormat.format(minimum)),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Button(
+                    onClick = onPlaceBid,
+                    enabled = minimum != null,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                ) {
+                    Text(stringResource(R.string.bid_place))
+                }
             }
         }
     }
@@ -74,6 +84,9 @@ internal fun VehicleBidDialog(
     val review = { focus.clearFocus(); onReview(decimalSeparator) }
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         title = {
             Text(
                 stringResource(
@@ -97,6 +110,7 @@ internal fun VehicleBidDialog(
                             value = state.amount,
                             onValueChange = onAmountChanged,
                             label = { Text(stringResource(R.string.bid_amount)) },
+                            shape = MaterialTheme.shapes.medium,
                             singleLine = true,
                             isError = state.error != null,
                             keyboardOptions = KeyboardOptions(
@@ -139,13 +153,13 @@ internal fun VehicleBidDialog(
         },
         confirmButton = {
             when (state) {
-                is BidUiState.Editing -> TextButton(onClick = review) {
+                is BidUiState.Editing -> Button(onClick = review) {
                     Text(stringResource(R.string.bid_review))
                 }
-                is BidUiState.Confirming -> TextButton(onClick = onConfirm) {
+                is BidUiState.Confirming -> Button(onClick = onConfirm) {
                     Text(stringResource(R.string.bid_confirm))
                 }
-                is BidUiState.Success -> TextButton(onClick = onDismiss) {
+                is BidUiState.Success -> Button(onClick = onDismiss) {
                     Text(stringResource(R.string.bid_done))
                 }
                 else -> Unit
