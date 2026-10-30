@@ -4,6 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -27,6 +30,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -86,12 +91,28 @@ fun InventoryScreen(
                     modifier = Modifier.widthIn(max = 720.dp).fillMaxWidth().padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    Text(
-                        text = stringResource(R.string.inventory_brand),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(Modifier.width(4.dp).height(20.dp).background(MaterialTheme.colorScheme.primary))
+                            Text(
+                                text = stringResource(R.string.inventory_brand),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.inventory_openlane),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                     Text(
                         text = stringResource(R.string.inventory_title),
                         style = MaterialTheme.typography.headlineLarge,
@@ -101,6 +122,12 @@ fun InventoryScreen(
                         value = state.query,
                         onValueChange = onQueryChanged,
                         modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.large,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        ),
                         label = { Text(stringResource(R.string.inventory_search_label)) },
                         placeholder = { Text(stringResource(R.string.inventory_search_hint)) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
@@ -128,6 +155,7 @@ fun InventoryScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
         },
@@ -182,7 +210,7 @@ fun InventoryScreen(
                             .consumeWindowInsets(innerPadding),
                         contentPadding = PaddingValues(
                             start = innerPadding.calculateLeftPadding(direction) + 20.dp,
-                            top = innerPadding.calculateTopPadding(),
+                            top = innerPadding.calculateTopPadding() + 16.dp,
                             end = innerPadding.calculateRightPadding(direction) + 20.dp,
                             bottom = innerPadding.calculateBottomPadding() + 24.dp,
                         ),
