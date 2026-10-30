@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Both launcher names intentionally reuse one drawable-backed bitmap on API 24–25. -->
+    <item name="ic_launcher" type="mipmap" tools:ignore="ReferenceType">@drawable/ic_launcher_legacy</item>
+    <item name="ic_launcher_round" type="mipmap" tools:ignore="ReferenceType">@drawable/ic_launcher_legacy</item>
+</resources>
