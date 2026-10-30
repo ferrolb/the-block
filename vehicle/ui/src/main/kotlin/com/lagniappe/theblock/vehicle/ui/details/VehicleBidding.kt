@@ -41,13 +41,16 @@ import java.text.DecimalFormatSymbols
 @Composable
 internal fun VehicleBidBar(minimum: Money?, onPlaceBid: () -> Unit) {
     val moneyFormat = rememberMoneyFormatter()
-    Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 8.dp) {
+    Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = VehicleBiddingDefaults.BarElevation) {
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Column(
-                modifier = Modifier.widthIn(max = 720.dp).fillMaxWidth()
+                modifier = Modifier.widthIn(max = VehicleBiddingDefaults.ContentMaxWidth).fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(
+                        horizontal = VehicleBiddingDefaults.BarHorizontalPadding,
+                        vertical = VehicleBiddingDefaults.BarVerticalPadding,
+                    ),
+                verticalArrangement = Arrangement.spacedBy(VehicleBiddingDefaults.BarSpacing),
             ) {
                 Text(
                     if (minimum == null) stringResource(R.string.bid_unavailable) else
@@ -57,7 +60,7 @@ internal fun VehicleBidBar(minimum: Money?, onPlaceBid: () -> Unit) {
                 Button(
                     onClick = onPlaceBid,
                     enabled = minimum != null,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = VehicleBiddingDefaults.ButtonMinHeight),
                 ) {
                     Text(stringResource(R.string.bid_place))
                 }
@@ -101,7 +104,7 @@ internal fun VehicleBidDialog(
         text = {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(VehicleBiddingDefaults.DialogSpacing),
             ) {
                 Text(vehicleTitle, style = MaterialTheme.typography.titleMedium)
                 when (state) {
@@ -177,4 +180,14 @@ internal fun VehicleBidDialog(
             }
         },
     )
+}
+
+private object VehicleBiddingDefaults {
+    val BarElevation = 8.dp
+    val ContentMaxWidth = 720.dp
+    val BarHorizontalPadding = 20.dp
+    val BarVerticalPadding = 12.dp
+    val BarSpacing = 8.dp
+    val ButtonMinHeight = 52.dp
+    val DialogSpacing = 12.dp
 }

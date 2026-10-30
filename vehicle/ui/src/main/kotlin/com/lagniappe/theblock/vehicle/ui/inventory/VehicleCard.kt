@@ -49,7 +49,7 @@ internal fun VehicleCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = BorderStroke(VehicleCardDefaults.BorderWidth, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Box {
             AsyncImage(
@@ -61,25 +61,28 @@ internal fun VehicleCard(
                 error = placeholder,
                 fallback = placeholder,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+                modifier = Modifier.fillMaxWidth().aspectRatio(VehicleCardDefaults.PhotoAspectRatio)
                     .background(MaterialTheme.colorScheme.surfaceContainerHighest),
             )
             Surface(
-                modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
+                modifier = Modifier.align(Alignment.TopStart).padding(VehicleCardDefaults.LotBadgeInset),
                 shape = MaterialTheme.shapes.small,
                 color = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onSecondary,
             ) {
                 Text(
                     text = stringResource(R.string.inventory_lot, vehicle.lot),
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    modifier = Modifier.padding(
+                        horizontal = VehicleCardDefaults.LotBadgeHorizontalPadding,
+                        vertical = VehicleCardDefaults.BadgeVerticalPadding,
+                    ),
                     style = MaterialTheme.typography.labelMedium,
                 )
             }
         }
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.padding(VehicleCardDefaults.ContentPadding),
+            verticalArrangement = Arrangement.spacedBy(VehicleCardDefaults.ContentSpacing),
         ) {
             Text(
                 text = stringResource(
@@ -110,11 +113,12 @@ internal fun VehicleCard(
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Row(
             modifier = Modifier.fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceContainerLow).padding(16.dp),
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                .padding(VehicleCardDefaults.BidSummaryPadding),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom,
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(VehicleCardDefaults.PriceWeight)) {
                 Text(
                     text = stringResource(
                         if (vehicle.auction.currentBid == null) {
@@ -143,9 +147,25 @@ internal fun VehicleCard(
                         R.plurals.inventory_bid_count, vehicle.auction.bidCount, vehicle.auction.bidCount,
                     ),
                     style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.padding(
+                        horizontal = VehicleCardDefaults.BidCountHorizontalPadding,
+                        vertical = VehicleCardDefaults.BadgeVerticalPadding,
+                    ),
                 )
             }
         }
     }
+}
+
+private object VehicleCardDefaults {
+    const val PhotoAspectRatio = 16f / 9f
+    const val PriceWeight = 1f
+    val BorderWidth = 1.dp
+    val LotBadgeInset = 12.dp
+    val LotBadgeHorizontalPadding = 10.dp
+    val BadgeVerticalPadding = 6.dp
+    val BidCountHorizontalPadding = 12.dp
+    val ContentPadding = 16.dp
+    val ContentSpacing = 6.dp
+    val BidSummaryPadding = 16.dp
 }

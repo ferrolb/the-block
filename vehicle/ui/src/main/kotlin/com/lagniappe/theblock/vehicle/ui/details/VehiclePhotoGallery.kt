@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 internal fun VehiclePhotoGallery(images: List<String>) {
     if (images.isEmpty()) {
         Box(
-            modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f)
+            modifier = Modifier.fillMaxWidth().aspectRatio(VehiclePhotoGalleryDefaults.AspectRatio)
                 .clip(MaterialTheme.shapes.large)
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest),
             contentAlignment = Alignment.Center,
@@ -60,7 +60,7 @@ internal fun VehiclePhotoGallery(images: List<String>) {
                 placeholder = placeholder,
                 error = placeholder,
                 fallback = placeholder,
-                modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f)
+                modifier = Modifier.fillMaxWidth().aspectRatio(VehiclePhotoGalleryDefaults.AspectRatio)
                     .background(MaterialTheme.colorScheme.surfaceContainerHighest),
             )
         }
@@ -93,4 +93,8 @@ internal fun VehiclePhotoGallery(images: List<String>) {
             }
         }
     }
+}
+
+private object VehiclePhotoGalleryDefaults {
+    const val AspectRatio = 4f / 3f
 }

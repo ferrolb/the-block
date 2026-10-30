@@ -12,16 +12,23 @@ import java.util.Locale
 /** One locale-aware CAD currency marker, without an additional currency suffix. */
 internal class MoneyFormatter(locale: Locale) {
     private val formatter = NumberFormat.getCurrencyInstance(locale).apply {
-        currency = Currency.getInstance("CAD")
-        minimumFractionDigits = 0
-        maximumFractionDigits = 2
+        currency = Currency.getInstance(MoneyFormatterDefaults.CurrencyCode)
+        minimumFractionDigits = MoneyFormatterDefaults.MinimumFractionDigits
+        maximumFractionDigits = MoneyFormatterDefaults.MaximumFractionDigits
     }
 
-    fun format(money: Money): String = formatter.format(BigDecimal.valueOf(money.cents, 2))
+    fun format(money: Money): String = formatter.format(BigDecimal.valueOf(money.cents, MoneyFormatterDefaults.CentsScale))
 }
 
 @Composable
 internal fun rememberMoneyFormatter(): MoneyFormatter {
     val locale = LocalConfiguration.current.locales[0]
     return remember(locale) { MoneyFormatter(locale) }
+}
+
+private object MoneyFormatterDefaults {
+    const val CurrencyCode = "CAD"
+    const val MinimumFractionDigits = 0
+    const val MaximumFractionDigits = 2
+    const val CentsScale = 2
 }

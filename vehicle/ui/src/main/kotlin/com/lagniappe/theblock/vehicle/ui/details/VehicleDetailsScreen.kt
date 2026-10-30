@@ -135,19 +135,26 @@ fun VehicleDetailsScreen(
                 val direction = LocalLayoutDirection.current
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                     LazyColumn(
-                        modifier = Modifier.widthIn(max = 720.dp).fillMaxSize()
+                        modifier = Modifier.widthIn(max = VehicleDetailsScreenDefaults.ContentMaxWidth).fillMaxSize()
                             .consumeWindowInsets(innerPadding).testTag("vehicle-details-list"),
                         contentPadding = PaddingValues(
-                            start = innerPadding.calculateLeftPadding(direction) + 20.dp,
-                            top = innerPadding.calculateTopPadding() + 16.dp,
-                            end = innerPadding.calculateRightPadding(direction) + 20.dp,
-                            bottom = innerPadding.calculateBottomPadding() + 24.dp,
+                            start = innerPadding.calculateLeftPadding(direction) +
+                                VehicleDetailsScreenDefaults.ContentHorizontalPadding,
+                            top = innerPadding.calculateTopPadding() + VehicleDetailsScreenDefaults.ContentTopPadding,
+                            end = innerPadding.calculateRightPadding(direction) +
+                                VehicleDetailsScreenDefaults.ContentHorizontalPadding,
+                            bottom = innerPadding.calculateBottomPadding() +
+                                VehicleDetailsScreenDefaults.ContentBottomPadding,
                         ),
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(VehicleDetailsScreenDefaults.SectionSpacing),
                     ) {
                         item(key = "photos") { VehiclePhotoGallery(vehicle.images) }
                         item(key = "identity") {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(
+                                    VehicleDetailsScreenDefaults.IdentitySpacing,
+                                ),
+                            ) {
                                 Text(
                                     stringResource(
                                         R.string.inventory_vehicle_title,
@@ -185,12 +192,12 @@ private fun DetailsStatus(
     loading: Boolean = false,
 ) {
     Box(
-        modifier = modifier.fillMaxSize().padding(24.dp),
+        modifier = modifier.fillMaxSize().padding(VehicleDetailsScreenDefaults.StatusPadding),
         contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(VehicleDetailsScreenDefaults.StatusSpacing),
         ) {
             if (loading) CircularProgressIndicator()
             Text(title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
@@ -198,4 +205,15 @@ private fun DetailsStatus(
             if (action != null) Button(onClick = onAction) { Text(action) }
         }
     }
+}
+
+private object VehicleDetailsScreenDefaults {
+    val ContentMaxWidth = 720.dp
+    val ContentHorizontalPadding = 20.dp
+    val ContentTopPadding = 16.dp
+    val ContentBottomPadding = 24.dp
+    val SectionSpacing = 20.dp
+    val IdentitySpacing = 8.dp
+    val StatusPadding = 24.dp
+    val StatusSpacing = 16.dp
 }

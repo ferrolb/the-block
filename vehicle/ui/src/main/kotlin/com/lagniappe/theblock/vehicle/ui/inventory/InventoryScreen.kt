@@ -85,8 +85,11 @@ fun InventoryScreen(
             Box(
                 modifier = Modifier.fillMaxWidth()
                     .background(
-                        if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
-                            Color(0xFFD6EBFA)
+                        if (
+                            MaterialTheme.colorScheme.surface.luminance() >
+                            InventoryScreenDefaults.LightSurfaceLuminanceThreshold
+                        ) {
+                            InventoryScreenDefaults.LightHeaderColor
                         } else {
                             MaterialTheme.colorScheme.surface
                         },
@@ -97,8 +100,11 @@ fun InventoryScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Column(
-                    modifier = Modifier.widthIn(max = 720.dp).fillMaxWidth().padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier
+                        .widthIn(max = InventoryScreenDefaults.ContentMaxWidth)
+                        .fillMaxWidth()
+                        .padding(InventoryScreenDefaults.HeaderPadding),
+                    verticalArrangement = Arrangement.spacedBy(InventoryScreenDefaults.SectionSpacing),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -106,10 +112,14 @@ fun InventoryScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(InventoryScreenDefaults.BrandSpacing),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Box(Modifier.width(4.dp).height(20.dp).background(MaterialTheme.colorScheme.primary))
+                            Box(
+                                Modifier.width(InventoryScreenDefaults.BrandAccentWidth)
+                                    .height(InventoryScreenDefaults.BrandAccentHeight)
+                                    .background(MaterialTheme.colorScheme.primary),
+                            )
                             Text(
                                 text = stringResource(R.string.inventory_brand),
                                 style = MaterialTheme.typography.labelLarge,
@@ -177,7 +187,7 @@ fun InventoryScreen(
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(InventoryScreenDefaults.LoadingSpacing),
                 ) {
                     CircularProgressIndicator()
                     Text(stringResource(R.string.inventory_loading))
@@ -215,15 +225,18 @@ fun InventoryScreen(
                 val direction = LocalLayoutDirection.current
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                     LazyColumn(
-                        modifier = Modifier.widthIn(max = 720.dp).fillMaxSize()
+                        modifier = Modifier.widthIn(max = InventoryScreenDefaults.ContentMaxWidth).fillMaxSize()
                             .consumeWindowInsets(innerPadding),
                         contentPadding = PaddingValues(
-                            start = innerPadding.calculateLeftPadding(direction) + 20.dp,
-                            top = innerPadding.calculateTopPadding() + 16.dp,
-                            end = innerPadding.calculateRightPadding(direction) + 20.dp,
-                            bottom = innerPadding.calculateBottomPadding() + 24.dp,
+                            start = innerPadding.calculateLeftPadding(direction) +
+                                InventoryScreenDefaults.ContentHorizontalPadding,
+                            top = innerPadding.calculateTopPadding() + InventoryScreenDefaults.ContentTopPadding,
+                            end = innerPadding.calculateRightPadding(direction) +
+                                InventoryScreenDefaults.ContentHorizontalPadding,
+                            bottom = innerPadding.calculateBottomPadding() +
+                                InventoryScreenDefaults.ContentBottomPadding,
                         ),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(InventoryScreenDefaults.ListItemSpacing),
                     ) {
                         items(content.vehicles, key = { it.id }) { vehicle ->
                             VehicleCard(vehicle, onClick = { onVehicleClick(vehicle.id) })
@@ -245,9 +258,10 @@ private fun InventoryMessage(
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Column(
-            modifier = Modifier.widthIn(max = 480.dp).padding(24.dp),
+            modifier = Modifier.widthIn(max = InventoryScreenDefaults.MessageMaxWidth)
+                .padding(InventoryScreenDefaults.MessagePadding),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(InventoryScreenDefaults.SectionSpacing),
         ) {
             Text(title, style = MaterialTheme.typography.titleLarge)
             Text(
@@ -280,4 +294,22 @@ private fun InventoryEmptySearchPreview() {
             onRetry = {},
         )
     }
+}
+
+private object InventoryScreenDefaults {
+    const val LightSurfaceLuminanceThreshold = 0.5f
+    val LightHeaderColor = Color(0xFFD6EBFA)
+    val ContentMaxWidth = 720.dp
+    val HeaderPadding = 20.dp
+    val ContentHorizontalPadding = 20.dp
+    val ContentTopPadding = 16.dp
+    val ContentBottomPadding = 24.dp
+    val SectionSpacing = 12.dp
+    val BrandSpacing = 8.dp
+    val BrandAccentWidth = 4.dp
+    val BrandAccentHeight = 20.dp
+    val ListItemSpacing = 16.dp
+    val LoadingSpacing = 16.dp
+    val MessageMaxWidth = 480.dp
+    val MessagePadding = 24.dp
 }

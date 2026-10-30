@@ -136,11 +136,11 @@ private fun DetailsSection(title: String, content: @Composable ColumnScope.() ->
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = BorderStroke(VehicleDetailsSectionsDefaults.BorderWidth, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(VehicleDetailsSectionsDefaults.SectionPadding),
+            verticalArrangement = Arrangement.spacedBy(VehicleDetailsSectionsDefaults.SectionSpacing),
         ) {
             Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -153,19 +153,28 @@ private fun DetailsSection(title: String, content: @Composable ColumnScope.() ->
 private fun DetailValue(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(VehicleDetailsSectionsDefaults.ValueSpacing),
     ) {
         Text(
             label,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(VehicleDetailsSectionsDefaults.LabelWeight),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
             value,
-            modifier = Modifier.weight(1.4f),
+            modifier = Modifier.weight(VehicleDetailsSectionsDefaults.ValueWeight),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.End,
         )
     }
+}
+
+private object VehicleDetailsSectionsDefaults {
+    const val LabelWeight = 1f
+    const val ValueWeight = 1.4f
+    val BorderWidth = 1.dp
+    val SectionPadding = 16.dp
+    val SectionSpacing = 12.dp
+    val ValueSpacing = 16.dp
 }
