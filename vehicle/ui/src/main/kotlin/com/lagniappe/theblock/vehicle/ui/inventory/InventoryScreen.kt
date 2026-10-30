@@ -1,5 +1,6 @@
 package com.lagniappe.theblock.vehicle.ui.inventory
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,6 +76,7 @@ fun InventoryScreen(
         topBar = {
             Box(
                 modifier = Modifier.fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
                     .windowInsetsPadding(
                         WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
                     ),
