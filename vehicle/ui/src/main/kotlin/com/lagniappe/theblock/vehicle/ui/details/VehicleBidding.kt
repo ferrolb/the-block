@@ -31,15 +31,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.lagniappe.theblock.vehicle.domain.model.Money
 import com.lagniappe.theblock.vehicle.ui.R
-import java.math.BigDecimal
+import com.lagniappe.theblock.vehicle.ui.format.rememberMoneyFormatter
 import java.text.DecimalFormatSymbols
-import java.text.NumberFormat
-import java.util.Currency
-import java.util.Locale
 
 @Composable
 internal fun VehicleBidBar(minimum: Money?, onPlaceBid: () -> Unit) {
-    val locale = LocalConfiguration.current.locales[0]
+    val moneyFormat = rememberMoneyFormatter()
     Surface(tonalElevation = 3.dp) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -49,7 +46,7 @@ internal fun VehicleBidBar(minimum: Money?, onPlaceBid: () -> Unit) {
         ) {
             Text(
                 if (minimum == null) stringResource(R.string.bid_unavailable) else
-                    stringResource(R.string.bid_minimum, formatBidMoney(minimum, locale)),
+                    stringResource(R.string.bid_minimum, moneyFormat.format(minimum)),
                 style = MaterialTheme.typography.bodyMedium,
             )
             Button(onClick = onPlaceBid, enabled = minimum != null, modifier = Modifier.fillMaxWidth()) {
@@ -72,6 +69,7 @@ internal fun VehicleBidDialog(
     if (state == BidUiState.Closed) return
     val locale = LocalConfiguration.current.locales[0]
     val decimalSeparator = DecimalFormatSymbols.getInstance(locale).decimalSeparator
+    val moneyFormat = rememberMoneyFormatter()
     val focus = LocalFocusManager.current
     val review = { focus.clearFocus(); onReview(decimalSeparator) }
     AlertDialog(
@@ -111,7 +109,7 @@ internal fun VehicleBidDialog(
                                         null -> stringResource(R.string.bid_amount_hint, decimalSeparator.toString())
                                         BidError.InvalidAmount -> stringResource(R.string.bid_invalid_amount)
                                         is BidError.TooLow -> stringResource(
-                                            R.string.bid_too_low, formatBidMoney(error.minimum, locale),
+                                            R.string.bid_too_low, moneyFormat.format(error.minimum),
                                         )
                                         BidError.Unavailable -> stringResource(R.string.bid_unavailable)
                                         BidError.SubmissionFailed -> stringResource(R.string.bid_failed)
@@ -122,14 +120,14 @@ internal fun VehicleBidDialog(
                         )
                     }
                     is BidUiState.Confirming -> Text(
-                        stringResource(R.string.bid_confirm_amount, formatBidMoney(state.amount, locale)),
+                        stringResource(R.string.bid_confirm_amount, moneyFormat.format(state.amount)),
                     )
                     is BidUiState.Submitting -> {
                         CircularProgressIndicator()
                         Text(stringResource(R.string.bid_submitting))
                     }
                     is BidUiState.Success -> Text(
-                        stringResource(R.string.bid_success_amount, formatBidMoney(state.amount, locale)),
+                        stringResource(R.string.bid_success_amount, moneyFormat.format(state.amount)),
                     )
                     BidUiState.Closed -> Unit
                 }
@@ -166,10 +164,3 @@ internal fun VehicleBidDialog(
         },
     )
 }
-
-private fun formatBidMoney(money: Money, locale: Locale): String =
-    NumberFormat.getCurrencyInstance(locale).apply {
-        currency = Currency.getInstance("CAD")
-        minimumFractionDigits = 0
-        maximumFractionDigits = 2
-    }.format(BigDecimal.valueOf(money.cents, 2))

@@ -26,9 +26,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.lagniappe.theblock.vehicle.domain.model.Vehicle
 import com.lagniappe.theblock.vehicle.ui.R
-import java.math.BigDecimal
+import com.lagniappe.theblock.vehicle.ui.format.rememberMoneyFormatter
 import java.text.NumberFormat
-import java.util.Currency
 
 @Composable
 internal fun VehicleCard(
@@ -38,13 +37,7 @@ internal fun VehicleCard(
 ) {
     val locale = LocalConfiguration.current.locales[0]
     val numberFormat = remember(locale) { NumberFormat.getIntegerInstance(locale) }
-    val moneyFormat = remember(locale) {
-        NumberFormat.getCurrencyInstance(locale).apply {
-            currency = Currency.getInstance("CAD")
-            minimumFractionDigits = 0
-            maximumFractionDigits = 2
-        }
-    }
+    val moneyFormat = rememberMoneyFormatter()
     val price = vehicle.auction.currentBid ?: vehicle.auction.startingBid
     val placeholder = painterResource(R.drawable.ic_vehicle_placeholder)
 
@@ -121,10 +114,7 @@ internal fun VehicleCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = stringResource(
-                            R.string.inventory_price_cad,
-                            moneyFormat.format(BigDecimal.valueOf(price.cents, 2)),
-                        ),
+                        text = moneyFormat.format(price),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,

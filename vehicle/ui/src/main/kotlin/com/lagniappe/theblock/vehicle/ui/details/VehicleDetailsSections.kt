@@ -22,9 +22,8 @@ import com.lagniappe.theblock.vehicle.domain.model.VehicleAuction
 import com.lagniappe.theblock.vehicle.domain.model.VehicleCondition
 import com.lagniappe.theblock.vehicle.domain.model.VehicleSpecs
 import com.lagniappe.theblock.vehicle.ui.R
-import java.math.BigDecimal
+import com.lagniappe.theblock.vehicle.ui.format.rememberMoneyFormatter
 import java.text.NumberFormat
-import java.util.Currency
 
 @Composable
 internal fun VehicleSpecifications(specs: VehicleSpecs) {
@@ -85,29 +84,22 @@ internal fun VehicleDealership(dealership: Dealership) {
 
 @Composable
 internal fun VehicleAuctionInformation(auction: VehicleAuction) {
-    val locale = LocalConfiguration.current.locales[0]
-    val format = remember(locale) {
-        NumberFormat.getCurrencyInstance(locale).apply {
-            currency = Currency.getInstance("CAD")
-            minimumFractionDigits = 0
-            maximumFractionDigits = 2
-        }
-    }
+    val format = rememberMoneyFormatter()
     val unavailable = stringResource(R.string.vehicle_details_not_provided)
     DetailsSection(stringResource(R.string.vehicle_details_auction)) {
         DetailValue(
             stringResource(R.string.inventory_current_bid),
-            auction.currentBid?.let { format.format(BigDecimal.valueOf(it.cents, 2)) }
+            auction.currentBid?.let { format.format(it) }
                 ?: stringResource(R.string.vehicle_details_no_bids),
         )
         DetailValue(stringResource(R.string.vehicle_details_bid_count), auction.bidCount.toString())
         DetailValue(
             stringResource(R.string.inventory_starting_bid),
-            format.format(BigDecimal.valueOf(auction.startingBid.cents, 2)),
+            format.format(auction.startingBid),
         )
         DetailValue(
             stringResource(R.string.vehicle_details_reserve),
-            auction.reservePrice?.let { format.format(BigDecimal.valueOf(it.cents, 2)) } ?: unavailable,
+            auction.reservePrice?.let { format.format(it) } ?: unavailable,
         )
         auction.reservePrice?.let { reserve ->
             val met = auction.currentBid?.let { it >= reserve } == true
@@ -120,7 +112,7 @@ internal fun VehicleAuctionInformation(auction: VehicleAuction) {
         }
         DetailValue(
             stringResource(R.string.vehicle_details_buy_now),
-            auction.buyNowPrice?.let { format.format(BigDecimal.valueOf(it.cents, 2)) }
+            auction.buyNowPrice?.let { format.format(it) }
                 ?: stringResource(R.string.vehicle_details_buy_now_unavailable),
         )
         DetailValue(
