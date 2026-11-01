@@ -46,6 +46,57 @@ class InventoryViewModelTest {
     }
 
     @Test
+    fun `my bids combines with search and remains available when search has no matches`() = runTest {
+        val repository = FakeRepository()
+        val viewModel = viewModel(repository)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+        advanceUntilIdle()
+        assertEquals(false, viewModel.uiState.value.hasUserBids)
+
+        val bidFord = ford.copy(auction = ford.auction.copy(
+            userBid = Money(1_500_000), currentBid = Money(1_510_000), bidCount = 2,
+        ))
+        repository.state.value = VehicleInventory.Ready(listOf(bidFord, mazda))
+        advanceUntilIdle()
+        assertEquals(true, viewModel.uiState.value.hasUserBids)
+        viewModel.onMyBidsOnlyChanged(true)
+        advanceUntilIdle()
+        // Outbid vehicles still belong to My bids.
+        assertEquals(listOf(bidFord), (viewModel.uiState.value.content as InventoryContent.Vehicles).vehicles)
+
+        viewModel.onQueryChanged("Mazda")
+        advanceUntilIdle()
+        assertEquals(emptyList<Vehicle>(), (viewModel.uiState.value.content as InventoryContent.Vehicles).vehicles)
+        assertEquals(true, viewModel.uiState.value.hasUserBids)
+        assertEquals(true, viewModel.uiState.value.myBidsOnly)
+
+        viewModel.onMyBidsOnlyChanged(false)
+        advanceUntilIdle()
+        assertEquals("Mazda", viewModel.uiState.value.query)
+        assertEquals(listOf(mazda), (viewModel.uiState.value.content as InventoryContent.Vehicles).vehicles)
+        assertEquals(1, repository.loadCalls)
+    }
+
+    @Test
+    fun `my bids selection is restored and saved`() = runTest {
+        val bidFord = ford.copy(auction = ford.auction.copy(userBid = Money(1_500_000)))
+        val repository = FakeRepository().apply {
+            next = VehicleInventory.Ready(listOf(bidFord, mazda))
+        }
+        val handle = SavedStateHandle(mapOf("inventory_my_bids" to true))
+        val viewModel = viewModel(repository, handle)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+        advanceUntilIdle()
+        assertEquals(true, viewModel.uiState.value.myBidsOnly)
+        assertEquals(listOf(bidFord), (viewModel.uiState.value.content as InventoryContent.Vehicles).vehicles)
+
+        viewModel.onMyBidsOnlyChanged(false)
+        advanceUntilIdle()
+        assertEquals(false, handle.get<Boolean>("inventory_my_bids"))
+        assertEquals(2, (viewModel.uiState.value.content as InventoryContent.Vehicles).vehicles.size)
+    }
+
+    @Test
     fun `initial load displays vehicles and search can be cleared`() = runTest {
         val repository = FakeRepository()
         val viewModel = viewModel(repository)

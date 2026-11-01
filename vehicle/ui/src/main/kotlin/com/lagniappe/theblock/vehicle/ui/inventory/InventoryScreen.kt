@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,6 +66,7 @@ fun InventoryRoute(
         state = state,
         onQueryChanged = viewModel::onQueryChanged,
         onRetry = viewModel::retry,
+        onMyBidsOnlyChanged = viewModel::onMyBidsOnlyChanged,
         onVehicleClick = onVehicleClick,
     )
 }
@@ -76,6 +78,7 @@ fun InventoryScreen(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
     onVehicleClick: (String) -> Unit = {},
+    onMyBidsOnlyChanged: (Boolean) -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     Scaffold(
@@ -165,15 +168,29 @@ fun InventoryScreen(
                         keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
                     )
                     val vehicles = (state.content as? InventoryContent.Vehicles)?.vehicles
-                    Text(
-                        text = if (vehicles == null) {
-                            stringResource(R.string.inventory_subtitle)
-                        } else {
-                            pluralStringResource(R.plurals.inventory_count, vehicles.size, vehicles.size)
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = if (vehicles == null) {
+                                stringResource(R.string.inventory_subtitle)
+                            } else {
+                                pluralStringResource(R.plurals.inventory_count, vehicles.size, vehicles.size)
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        if (state.hasUserBids) {
+                            FilterChip(
+                                selected = state.myBidsOnly,
+                                onClick = { onMyBidsOnlyChanged(!state.myBidsOnly) },
+                                label = { Text(stringResource(R.string.inventory_my_bids)) },
+                                shape = MaterialTheme.shapes.extraLarge,
+                            )
+                        }
+                    }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
@@ -209,16 +226,27 @@ fun InventoryScreen(
             )
 
             is InventoryContent.Vehicles -> if (content.vehicles.isEmpty()) {
-                val searching = state.query.isNotBlank()
+                val searching = state.query.isNotBlank() || state.myBidsOnly
                 InventoryMessage(
                     title = stringResource(
                         if (searching) R.string.inventory_no_matches else R.string.inventory_empty_title,
                     ),
                     message = stringResource(
-                        if (searching) R.string.inventory_search_empty_message else R.string.inventory_empty_message,
+                        when {
+                            state.myBidsOnly -> R.string.inventory_my_bids_empty_message
+                            searching -> R.string.inventory_search_empty_message
+                            else -> R.string.inventory_empty_message
+                        },
                     ),
-                    action = if (searching) stringResource(R.string.inventory_clear_search) else null,
-                    onAction = { onQueryChanged("") },
+                    action = when {
+                        state.query.isNotBlank() -> stringResource(R.string.inventory_clear_search)
+                        state.myBidsOnly -> stringResource(R.string.inventory_show_all)
+                        else -> null
+                    },
+                    onAction = {
+                        if (state.query.isNotBlank()) onQueryChanged("")
+                        else onMyBidsOnlyChanged(false)
+                    },
                     modifier = contentModifier.padding(innerPadding).consumeWindowInsets(innerPadding),
                 )
             } else {

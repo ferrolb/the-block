@@ -63,6 +63,9 @@
     <string name="inventory_title">Vehicle inventory</string>
     <string name="inventory_subtitle">Find your next vehicle</string>
     <string name="inventory_search_label">Search vehicles</string>
+    <string name="inventory_my_bids">My bids</string>
+    <string name="inventory_show_all">Show all vehicles</string>
+    <string name="inventory_my_bids_empty_message">Try another search or turn off My bids to see more vehicles.</string>
     <string name="inventory_search_hint">Make, model, year, VIN or lot</string>
     <string name="inventory_clear_search">Clear search</string>
     <string name="inventory_loading">Loading vehicles…</string>

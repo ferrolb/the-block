@@ -9,6 +9,8 @@ import com.lagniappe.theblock.vehicle.domain.model.VehicleAuction
 import com.lagniappe.theblock.vehicle.domain.model.VehicleCondition
 import com.lagniappe.theblock.vehicle.domain.model.VehicleSpecs
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -70,6 +72,33 @@ class InventoryScreenTest {
         }
         compose.onNodeWithText("Your bid · Outbid").assertIsDisplayed()
         compose.onNodeWithText("Your bid · Leading").assertDoesNotExist()
+    }
+
+    @Test
+    fun myBidsPillAppearsAfterBidAndCanBeToggledOffFromEmptyResults() {
+        val state = mutableStateOf(
+            InventoryUiState(content = InventoryContent.Vehicles(emptyList())),
+        )
+        compose.setContent {
+            MaterialTheme {
+                InventoryScreen(
+                    state = state.value,
+                    onQueryChanged = {},
+                    onRetry = {},
+                    onMyBidsOnlyChanged = { state.value = state.value.copy(myBidsOnly = it) },
+                )
+            }
+        }
+        compose.onNodeWithText("My bids").assertDoesNotExist()
+        compose.runOnIdle { state.value = state.value.copy(hasUserBids = true) }
+        compose.onNodeWithText("My bids").assertIsDisplayed().assertIsNotSelected().performClick()
+        compose.onNodeWithText("My bids").assertIsSelected()
+        compose.onNodeWithText("Try another search or turn off My bids to see more vehicles.")
+            .assertIsDisplayed()
+        compose.onNodeWithText("Show all vehicles").performClick()
+        compose.onNodeWithText("My bids").assertIsNotSelected()
+        compose.onNodeWithText("My bids").performClick().performClick()
+        compose.onNodeWithText("My bids").assertIsNotSelected()
     }
 
     @Test
