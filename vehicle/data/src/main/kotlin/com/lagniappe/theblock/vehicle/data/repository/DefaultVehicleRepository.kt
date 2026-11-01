@@ -8,6 +8,7 @@ import com.lagniappe.theblock.vehicle.domain.repository.BidResult
 import com.lagniappe.theblock.vehicle.domain.repository.InventoryFailure
 import com.lagniappe.theblock.vehicle.domain.repository.VehicleInventory
 import com.lagniappe.theblock.vehicle.domain.repository.VehicleRepository
+import com.lagniappe.theblock.vehicle.domain.settings.DemoBidSettings
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -29,9 +30,10 @@ import kotlin.random.Random
 internal class DefaultVehicleRepository(
     private val api: VehicleApi,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val simulationEnabled: Boolean = true,
+    simulationEnabled: Boolean = true,
     private val simulationScope: CoroutineScope = CoroutineScope(SupervisorJob() + ioDispatcher),
     private val simulatedBidCount: () -> Int = { Random.nextInt(0, 4) },
+    private val bidSettings: DemoBidSettings = DemoBidSettings(simulationEnabled),
 ) : VehicleRepository {
     private val mutableInventory = MutableStateFlow<VehicleInventory>(VehicleInventory.NotLoaded)
     override val inventory = mutableInventory.asStateFlow()
@@ -106,7 +108,8 @@ internal class DefaultVehicleRepository(
         }
 
     private fun simulateBidProcessing(vehicleId: String) {
-        if (!simulationEnabled) return
+        val settingsAtStart = bidSettings.state.value
+        if (!settingsAtStart.simulationEnabled) return
         // Capture the accepted auction so an older timer cannot outbid a newer user bid.
         val accepted =
             (mutableInventory.value as? VehicleInventory.Ready)
@@ -119,6 +122,7 @@ internal class DefaultVehicleRepository(
             repeat(simulatedBidCount()) {
                 delay(Random.nextLong(3_000L, 10_001L))
                 mutex.withLock {
+                    if (bidSettings.state.value != settingsAtStart) return@launch
                     val ready = mutableInventory.value as? VehicleInventory.Ready ?: return@launch
                     val vehicle = ready.vehicles.find { it.id == vehicleId } ?: return@launch
                     if (vehicle.auction != expected) return@launch

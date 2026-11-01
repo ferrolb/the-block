@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lagniappe.theblock.vehicle.domain.model.Vehicle
+import com.lagniappe.theblock.vehicle.domain.settings.DemoBidSettings
 import com.lagniappe.theblock.vehicle.domain.repository.InventoryFailure
 import com.lagniappe.theblock.vehicle.domain.repository.VehicleInventory
 import com.lagniappe.theblock.vehicle.domain.usecase.LoadInventoryUseCase
@@ -48,10 +49,21 @@ class InventoryViewModel
         private val savedStateHandle: SavedStateHandle,
         observeVehicles: ObserveVehiclesUseCase,
         private val loadInventory: LoadInventoryUseCase,
+        private val bidSettings: DemoBidSettings,
     ) : ViewModel() {
         private val query = savedStateHandle.getStateFlow(QUERY_KEY, "")
         private val myBidsOnly = savedStateHandle.getStateFlow(MY_BIDS_KEY, false)
         private var loadJob: Job? = null
+
+        val simulationEnabled = bidSettings.state.map { it.simulationEnabled }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = bidSettings.state.value.simulationEnabled,
+        )
+
+        fun onSimulationEnabledChanged(enabled: Boolean) {
+            bidSettings.setSimulationEnabled(enabled)
+        }
 
         val uiState =
             channelFlow {

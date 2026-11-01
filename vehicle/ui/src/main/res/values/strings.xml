@@ -1,4 +1,8 @@
 <resources>
+    <string name="inventory_more_options">More options</string>
+    <string name="demo_settings_title">Demo settings</string>
+    <string name="demo_simulate_bids">Simulate competing bids</string>
+    <string name="demo_simulation_explanation">Turning this off stops pending competing bids. Turning it on enables simulation after your next accepted bid. Existing bids stay unchanged. This setting resets when the app restarts.</string>
     <string name="bid_place">Place bid</string>
     <string name="bid_amount">Amount (CAD)</string>
     <string name="bid_minimum">Minimum next bid: %1$s</string>

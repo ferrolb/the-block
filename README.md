@@ -66,7 +66,11 @@ Studio. Use the committed wrapper rather than a separately installed Gradle.
 - After **Bid placed**, return to inventory to see the updated price and bid count.
 - EXTRA: Incoming bids from other buyers are simulated with a random delay. If the current bid
   changes while reviewing, the form reports the new minimum and requires
-  another review.  This is controlled by a boolean flag in the repository and can be disabled.
+  another review. Open **More options → Demo settings** on inventory to toggle
+  **Simulate competing bids**. Turning it off stops pending competing bids without
+  changing existing bids. Turning it back on applies after the next accepted user
+  bid. The setting resets on process restart; the injected boolean remains the
+  default for repository construction and tests.
 
 Loading, retry, empty search/inventory, unknown vehicle, image fallback, and bid
 validation states are handled. Search, navigation, and photo selection survive
@@ -149,8 +153,8 @@ tracked in this repository.
 With more time: 
 - Pagination for inventory and search.
 - As the features grow, move hilt bindings to feature modules.
-- Pill button filtering for search: by store, my bids, type.
-- More direct multiple bid support, with a bid history and a current bids screen
+- More Pill button filtering for search: by store, type, etc.
+- More direct multiple bid support, with a bid history screen
 - server-authoritative bids with idempotency/conflict handling,
 - durable storage (to support offline mode via Room/WorkManager)
 - real vehicle photography 

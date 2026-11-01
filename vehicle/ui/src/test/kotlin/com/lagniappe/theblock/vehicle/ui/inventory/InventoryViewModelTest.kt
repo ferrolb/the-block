@@ -1,6 +1,7 @@
 package com.lagniappe.theblock.vehicle.ui.inventory
 
 import androidx.lifecycle.SavedStateHandle
+import com.lagniappe.theblock.vehicle.domain.settings.DemoBidSettings
 import com.lagniappe.theblock.vehicle.domain.model.Dealership
 import com.lagniappe.theblock.vehicle.domain.model.Money
 import com.lagniappe.theblock.vehicle.domain.model.Vehicle
@@ -43,6 +44,28 @@ class InventoryViewModelTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `demo settings changes are shared and do not load inventory`() = runTest {
+        val repository = FakeRepository()
+        val settings = DemoBidSettings(initialEnabled = true)
+        val viewModel = InventoryViewModel(
+            SavedStateHandle(), ObserveVehiclesUseCase(repository),
+            LoadInventoryUseCase(repository), settings,
+        )
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.simulationEnabled.collect {}
+        }
+        advanceUntilIdle()
+        assertEquals(true, viewModel.simulationEnabled.value)
+        viewModel.onSimulationEnabledChanged(false)
+        advanceUntilIdle()
+        assertEquals(false, settings.state.value.simulationEnabled)
+        settings.setSimulationEnabled(true)
+        advanceUntilIdle()
+        assertEquals(true, viewModel.simulationEnabled.value)
+        assertEquals(0, repository.loadCalls)
     }
 
     @Test
@@ -235,7 +258,7 @@ class InventoryViewModelTest {
     private fun viewModel(
         repository: VehicleRepository,
         handle: SavedStateHandle = SavedStateHandle(),
-    ) = InventoryViewModel(handle, ObserveVehiclesUseCase(repository), LoadInventoryUseCase(repository))
+    ) = InventoryViewModel(handle, ObserveVehiclesUseCase(repository), LoadInventoryUseCase(repository), DemoBidSettings(false))
 
     private class FakeRepository : VehicleRepository {
         val state = MutableStateFlow<VehicleInventory>(VehicleInventory.NotLoaded)

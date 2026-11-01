@@ -3,6 +3,7 @@ package com.lagniappe.theblock.vehicle.data.repository
 import com.lagniappe.theblock.vehicle.data.remote.VehicleApi
 import com.lagniappe.theblock.vehicle.data.remote.VehicleDto
 import com.lagniappe.theblock.vehicle.domain.model.Money
+import com.lagniappe.theblock.vehicle.domain.settings.DemoBidSettings
 import com.lagniappe.theblock.vehicle.domain.model.Vehicle
 import com.lagniappe.theblock.vehicle.domain.repository.BidResult
 import com.lagniappe.theblock.vehicle.domain.repository.InventoryFailure
@@ -27,6 +28,49 @@ import org.junit.Test
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DefaultVehicleRepositoryTest {
+    @Test
+    fun `runtime toggle stops pending bids and enabling waits for the next user bid`() = runTest {
+        val settings = DemoBidSettings(initialEnabled = true)
+        val repository = repository(bidSettings = settings, bidCount = { 3 })
+        repository.loadInventory()
+        val vehicle = repository.vehicles().first { it.auction.currentBid == null }
+        repository.placeBid(vehicle.id, vehicle.auction.startingBid)
+        runCurrent()
+        val accepted = repository.vehicles().first { it.id == vehicle.id }
+        settings.setSimulationEnabled(false)
+        // A quick off/on must not revive an old pending timer.
+        settings.setSimulationEnabled(true)
+        advanceTimeBy(30_001)
+        runCurrent()
+        assertEquals(accepted, repository.vehicles().first { it.id == vehicle.id })
+
+        val next = Money(vehicle.auction.startingBid.cents + 10_000)
+        repository.placeBid(vehicle.id, next)
+        runCurrent()
+        advanceTimeBy(10_001)
+        runCurrent()
+        val outbid = repository.vehicles().first { it.id == vehicle.id }
+        assertTrue(requireNotNull(outbid.auction.currentBid) > next)
+        settings.setSimulationEnabled(false)
+        advanceTimeBy(30_001)
+        runCurrent()
+        assertEquals(outbid, repository.vehicles().first { it.id == vehicle.id })
+    }
+
+    @Test
+    fun `runtime disabled bids stay accepted and enabling does not schedule retroactively`() = runTest {
+        val settings = DemoBidSettings(initialEnabled = false)
+        val repository = repository(bidSettings = settings)
+        repository.loadInventory()
+        val vehicle = repository.vehicles().first { it.auction.currentBid == null }
+        repository.placeBid(vehicle.id, vehicle.auction.startingBid)
+        val accepted = repository.vehicles().first { it.id == vehicle.id }
+        settings.setSimulationEnabled(true)
+        advanceTimeBy(30_001)
+        runCurrent()
+        assertEquals(accepted, repository.vehicles().first { it.id == vehicle.id })
+    }
+
     @Test
     fun `user leads immediately then competing bids update only that vehicle`() = runTest {
         val repository = repository(simulationEnabled = true)
@@ -224,6 +268,7 @@ class DefaultVehicleRepositoryTest {
     private fun TestScope.repository(
         simulationEnabled: Boolean = false,
         bidCount: () -> Int = { 1 },
+        bidSettings: DemoBidSettings = DemoBidSettings(simulationEnabled),
         load: suspend () -> List<VehicleDto> = { fixture() },
     ): DefaultVehicleRepository = DefaultVehicleRepository(
         api = object : VehicleApi {
@@ -233,6 +278,7 @@ class DefaultVehicleRepositoryTest {
         simulationScope = backgroundScope,
         simulationEnabled = simulationEnabled,
         simulatedBidCount = bidCount,
+        bidSettings = bidSettings,
     )
 
     private fun DefaultVehicleRepository.vehicles(): List<Vehicle> =

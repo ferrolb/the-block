@@ -9,6 +9,9 @@ import com.lagniappe.theblock.vehicle.domain.model.VehicleAuction
 import com.lagniappe.theblock.vehicle.domain.model.VehicleCondition
 import com.lagniappe.theblock.vehicle.domain.model.VehicleSpecs
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -99,6 +102,33 @@ class InventoryScreenTest {
         compose.onNodeWithText("My bids").assertIsNotSelected()
         compose.onNodeWithText("My bids").performClick().performClick()
         compose.onNodeWithText("My bids").assertIsNotSelected()
+    }
+
+    @Test
+    fun demoSettingsSwitchUpdatesImmediatelyAndRemembersValueWhenReopened() {
+        val enabled = mutableStateOf(true)
+        compose.setContent {
+            MaterialTheme {
+                InventoryScreen(
+                    state = InventoryUiState(),
+                    onQueryChanged = {},
+                    onRetry = {},
+                    simulationEnabled = enabled.value,
+                    onSimulationEnabledChanged = { enabled.value = it },
+                )
+            }
+        }
+        compose.onNodeWithContentDescription("More options").performClick()
+        compose.onNodeWithText("Demo settings").performClick()
+        compose.onNodeWithText("Simulate competing bids").assertIsOn().performClick()
+        compose.onNodeWithText("Simulate competing bids").assertIsOff()
+        compose.onNodeWithText("Done").performClick()
+        compose.onNodeWithContentDescription("More options").performClick()
+        compose.onNodeWithText("Demo settings").performClick()
+        compose.onNodeWithText("Simulate competing bids").assertIsOff().performClick()
+        compose.onNodeWithText("Simulate competing bids").assertIsOn()
+        compose.onNodeWithText("Done").performClick()
+        compose.onNodeWithText("Simulate competing bids").assertDoesNotExist()
     }
 
     @Test

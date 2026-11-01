@@ -62,12 +62,15 @@ fun InventoryRoute(
     viewModel: InventoryViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val simulationEnabled by viewModel.simulationEnabled.collectAsStateWithLifecycle()
     InventoryScreen(
         state = state,
         onQueryChanged = viewModel::onQueryChanged,
         onRetry = viewModel::retry,
         onMyBidsOnlyChanged = viewModel::onMyBidsOnlyChanged,
         onVehicleClick = onVehicleClick,
+        simulationEnabled = simulationEnabled,
+        onSimulationEnabledChanged = viewModel::onSimulationEnabledChanged,
     )
 }
 
@@ -79,6 +82,8 @@ fun InventoryScreen(
     modifier: Modifier = Modifier,
     onVehicleClick: (String) -> Unit = {},
     onMyBidsOnlyChanged: (Boolean) -> Unit = {},
+    simulationEnabled: Boolean = false,
+    onSimulationEnabledChanged: (Boolean) -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     Scaffold(
@@ -129,11 +134,14 @@ fun InventoryScreen(
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
                         }
-                        Text(
-                            text = stringResource(R.string.inventory_openlane),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = stringResource(R.string.inventory_openlane),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            InventoryDemoSettings(simulationEnabled, onSimulationEnabledChanged)
+                        }
                     }
                     Text(
                         text = stringResource(R.string.inventory_title),
