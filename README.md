@@ -64,6 +64,9 @@ Studio. Use the committed wrapper rather than a separately installed Gradle.
 - Tap **Place bid**, enter a CAD amount, choose **Review bid**, and explicitly
   **Confirm bid**. Editing or cancelling does not submit anything.
 - After **Bid placed**, return to inventory to see the updated price and bid count.
+- EXTRA: Incoming bids from other buyers are simulated with a random delay. If the current bid
+  changes while reviewing, the form reports the new minimum and requires
+  another review.  This is controlled by a boolean flag in the repository and can be disabled.
 
 Loading, retry, empty search/inventory, unknown vehicle, image fallback, and bid
 validation states are handled. Search, navigation, and photo selection survive
@@ -143,6 +146,16 @@ implementation, tests, and documentation; the code and tradeoffs are intended
 to be reviewed and explained by the candidate. Exact hands-on time was not
 tracked in this repository.
 
-With more time: server-authoritative bids with idempotency/conflict handling,
-durable storage, real vehicle photography, broader device/accessibility testing,
-and a dedicated layout for larger screens.
+With more time: 
+- Pagination for inventory and search.
+- As the features grow, move hilt bindings to feature modules.
+- Pill button filtering for search: by store, my bids, type.
+- More direct multiple bid support, with a bid history and a current bids screen
+- server-authoritative bids with idempotency/conflict handling,
+- durable storage (to support offline mode via Room/WorkManager)
+- real vehicle photography 
+- broader device/accessibility testing,
+- dedicated layout for larger screens and landscape support
+- converter between CAD and USD
+
+

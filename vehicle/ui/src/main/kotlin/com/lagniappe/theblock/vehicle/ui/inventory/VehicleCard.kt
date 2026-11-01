@@ -91,6 +91,28 @@ internal fun VehicleCard(
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
+            if (vehicle.auction.userBid != null) {
+                val leading = vehicle.auction.userBid == vehicle.auction.currentBid
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = if (leading) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.errorContainer,
+                    contentColor = if (leading) MaterialTheme.colorScheme.onPrimaryContainer
+                        else MaterialTheme.colorScheme.onErrorContainer,
+                ) {
+                    Text(
+                        text = stringResource(
+                            if (leading) R.string.inventory_your_bid_leading
+                            else R.string.inventory_your_bid_outbid,
+                        ),
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(
+                            horizontal = VehicleCardDefaults.BidCountHorizontalPadding,
+                            vertical = VehicleCardDefaults.BadgeVerticalPadding,
+                        ),
+                    )
+                }
+            }
             Text(
                 text = stringResource(
                     R.string.inventory_trim_mileage,

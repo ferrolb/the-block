@@ -82,6 +82,8 @@
     <string name="inventory_location">%1$s, %2$s</string>
     <string name="inventory_starting_bid">Starting bid</string>
     <string name="inventory_current_bid">Current bid</string>
+    <string name="inventory_your_bid_leading">Your bid · Leading</string>
+    <string name="inventory_your_bid_outbid">Your bid · Outbid</string>
     <plurals name="inventory_count">
         <item quantity="one">%d vehicle</item>
         <item quantity="other">%d vehicles</item>
